@@ -16,5 +16,6 @@ public class Registration {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private UUID eventId;
+    private UUID registrationId;
     private String email;
 }

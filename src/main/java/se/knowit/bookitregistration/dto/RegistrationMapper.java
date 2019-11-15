@@ -19,6 +19,10 @@ public class RegistrationMapper {
         if (model.getEventId() != null) {
             dto.setEventId(model.getEventId().toString());
         }
+        if(model.getRegistrationId() != null)
+        {
+            dto.setRegistrationId(model.getRegistrationId().toString());
+        }
         dto.setEmail(model.getEmail());
         return dto;
     }
