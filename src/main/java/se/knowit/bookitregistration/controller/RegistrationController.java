@@ -8,7 +8,6 @@ import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.RegistrationService;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 @RestController
 @RequestMapping(RegistrationController.BASE_PATH)
