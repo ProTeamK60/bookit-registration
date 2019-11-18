@@ -1,7 +1,9 @@
 package se.knowit.bookitregistration.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import se.knowit.bookitregistration.dto.RegistrationDTO;
 import se.knowit.bookitregistration.dto.RegistrationMapper;
 import se.knowit.bookitregistration.model.Registration;
@@ -10,6 +12,9 @@ import se.knowit.bookitregistration.service.RegistrationService;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
+import java.util.Set;
+
+import static java.util.stream.Collectors.toSet;
 
 @RestController
 @RequestMapping(RegistrationController.BASE_PATH)
@@ -27,14 +32,35 @@ public class RegistrationController {
         this.mapper = new RegistrationMapper();
     }
 
+    @GetMapping({"", "/"})
+    public Set<RegistrationDTO> findAllRegistrations() {
+        Set<Registration> allRegistrations = service.findAll();
+        if (allRegistrations.isEmpty()) {
+            throw notFound();
+        }
+        RegistrationMapper mapper = new RegistrationMapper();
+        return allRegistrations.stream()
+                .map(mapper::toDTO)
+                .collect(toSet());
+    }
+
     @PostMapping(value = {"", "/"}, consumes = "application/json", produces = "application/json")
     public ResponseEntity<String> registerToEvent(@RequestBody RegistrationDTO dto) {
         RegistrationSaveResult result = trySave(dto);
         return buildResponseFromRegistrationSaveResult(result);
     }
 
-    private RegistrationSaveResult trySave(@RequestBody RegistrationDTO incomingRegistration)
-    {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> delete(@PathVariable String id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    private ResponseStatusException notFound() {
+        return new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
+    }
+
+    private RegistrationSaveResult trySave(@RequestBody RegistrationDTO incomingRegistration) {
         try {
             Registration saved = service.save(mapper.fromDTO(incomingRegistration));
             return new RegistrationSaveResult(saved.getRegistrationId().toString());
