@@ -19,6 +19,6 @@ public class RegistrationValidator {
 
     private void ensureEmailIsValid(Registration registration) {
         String email = registration.getEmail();
-        if (email == null || email.isBlank() || !email.matches("^(.+)@(.+)$")) throw new IllegalArgumentException();
+        if (email == null || email.isBlank() || !email.matches("^(.+)@(.+)$")) throw new IllegalArgumentException("Invalid email: " + email);
     }
 }

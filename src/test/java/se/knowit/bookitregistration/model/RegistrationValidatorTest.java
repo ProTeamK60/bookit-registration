@@ -1,9 +1,10 @@
 package se.knowit.bookitregistration.model;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RegistrationValidatorTest {
 
@@ -16,24 +17,24 @@ public class RegistrationValidatorTest {
         incomingRegistration.setEventId(DEFAULT_UUID);
         incomingRegistration.setEmail("test@test.com");
         Registration validRegistration = validator.ensureRegistrationIsValidOrThrowException(incomingRegistration);
-        Assert.assertEquals(incomingRegistration, validRegistration);
+        assertEquals(incomingRegistration, validRegistration);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testValidatingRegistrationWithInvalidEmailShouldThrowException()
     {
         Registration incomingRegistration = new Registration();
         incomingRegistration.setEventId(DEFAULT_UUID);
         incomingRegistration.setEmail("test");
-        validator.ensureRegistrationIsValidOrThrowException(incomingRegistration);
+        assertThrows(IllegalArgumentException.class, () -> validator.ensureRegistrationIsValidOrThrowException(incomingRegistration));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testValidatingRegistrationWithInvalidEventIdShouldThrowException()
     {
         Registration incomingRegistration = new Registration();
         incomingRegistration.setEmail("test@test.com");
-        validator.ensureRegistrationIsValidOrThrowException(incomingRegistration);
+        assertThrows(NullPointerException.class, () -> validator.ensureRegistrationIsValidOrThrowException(incomingRegistration));
     }
 
 }
