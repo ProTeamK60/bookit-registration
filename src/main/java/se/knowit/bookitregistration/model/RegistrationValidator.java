@@ -14,16 +14,11 @@ public class RegistrationValidator {
 
     private void ensureEventIdIsValid(Registration registration)
     {
-        if(registration.getEventId() == null) throw new IllegalArgumentException();
+        if(registration.getEventId() == null) throw new NullPointerException();
     }
 
-    private void ensureEmailIsValid(Registration registration)
-    {
-        ensureIsNotNullOrBlank(registration.getEmail());
-    }
-
-    private void ensureIsNotNullOrBlank(String value)
-    {
-        if(value == null || value.isBlank() || !value.matches("^(.+)@(.+)$")) throw new IllegalArgumentException();
+    private void ensureEmailIsValid(Registration registration) {
+        String email = registration.getEmail();
+        if (email == null || email.isBlank() || !email.matches("^(.+)@(.+)$")) throw new IllegalArgumentException();
     }
 }

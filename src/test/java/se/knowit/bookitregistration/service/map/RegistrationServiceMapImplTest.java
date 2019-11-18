@@ -5,6 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.RegistrationService;
+import se.knowit.bookitregistration.service.RegistrationServiceMapImpl;
+import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
 import java.util.UUID;
 
@@ -20,8 +22,7 @@ public class RegistrationServiceMapImplTest {
     }
 
     @Test
-    public void testSaveAValidRegistrationToEmptyMap()
-    {
+    public void testSaveAValidRegistrationToEmptyMap() throws ConflictingEntityException {
         Registration incomingRegistration = validRegistration();
         Registration savedRegistration = service.save(incomingRegistration);
         Assert.assertEquals(1L, savedRegistration.getId(), 0);
@@ -29,8 +30,7 @@ public class RegistrationServiceMapImplTest {
     }
 
     @Test
-    public void testSaveAValidRegistrationToFilledMap()
-    {
+    public void testSaveAValidRegistrationToFilledMap() throws ConflictingEntityException {
         service.save(validRegistration());
         Registration incomingRegistration = new Registration();
         incomingRegistration.setEventId(DEFAULT_UUID);
@@ -41,11 +41,16 @@ public class RegistrationServiceMapImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testSaveAnInvalidRegistration()
-    {
+    public void testSaveAnInvalidRegistrationShouldThrowException() throws ConflictingEntityException {
         Registration incomingRegistration = validRegistration();
         incomingRegistration.setEmail("test");
         service.save(incomingRegistration);
+    }
+
+    @Test(expected = ConflictingEntityException.class)
+    public void testSaveADuplicateRegistrationShouldThrowException() throws ConflictingEntityException {
+        service.save(validRegistration());
+        service.save(validRegistration());
     }
 
     private Registration validRegistration()
@@ -54,7 +59,6 @@ public class RegistrationServiceMapImplTest {
         registration.setEventId(DEFAULT_UUID);
         registration.setEmail("valid@email.com");
         return registration;
-
     }
 
     private boolean uuidIsNotNullOrBlank(UUID uuid)

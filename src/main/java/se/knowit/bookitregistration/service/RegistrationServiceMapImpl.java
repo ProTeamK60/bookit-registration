@@ -1,12 +1,11 @@
-package se.knowit.bookitregistration.service.map;
+package se.knowit.bookitregistration.service;
 
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.model.RegistrationValidator;
-import se.knowit.bookitregistration.service.RegistrationService;
+import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class RegistrationServiceMapImpl implements RegistrationService {
     private final Map<Long, Registration> map;
@@ -29,7 +28,7 @@ public class RegistrationServiceMapImpl implements RegistrationService {
     }
 
     @Override
-    public Registration save(Registration incomingRegistration) {
+    public Registration save(Registration incomingRegistration) throws ConflictingEntityException {
         Registration validRegistration = registrationValidator.ensureRegistrationIsValidOrThrowException(incomingRegistration);
         assignRequiredIds(validRegistration);
         persistRegistration(validRegistration);
@@ -51,7 +50,15 @@ public class RegistrationServiceMapImpl implements RegistrationService {
         identityHandler.assignRegistrationIdIfNotSet(registration);
     }
 
-    private void persistRegistration(Registration registration) {
+    private void persistRegistration(Registration registration) throws ConflictingEntityException {
+        Optional<Registration> registrationToAdd = map.values()
+                .stream()
+                .filter(r -> r.getEventId().toString().equals(registration.getEventId().toString()))
+                .filter(r -> r.getEmail().equals(registration.getEmail()))
+                .findFirst();
+        if(registrationToAdd.isPresent()) {
+            throw new ConflictingEntityException("Given email address is already present.");
+        }
         map.put(registration.getId(), registration);
     }
 

@@ -1,6 +1,9 @@
 package se.knowit.bookitregistration.controller;
 
+import com.fasterxml.jackson.core.JsonParser;
+import net.minidev.json.reader.JsonWriter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -8,6 +11,7 @@ import se.knowit.bookitregistration.dto.RegistrationDTO;
 import se.knowit.bookitregistration.dto.RegistrationMapper;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.RegistrationService;
+import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -64,9 +68,12 @@ public class RegistrationController {
         try {
             Registration saved = service.save(mapper.fromDTO(incomingRegistration));
             return new RegistrationSaveResult(saved.getRegistrationId().toString());
-        } catch(Exception e)
+        } catch(ConflictingEntityException cee)
         {
-            return new RegistrationSaveResult(e);
+            return new RegistrationSaveResult(cee, Outcome.CONFLICT);
+        } catch (IllegalArgumentException | NullPointerException e)
+        {
+            return new RegistrationSaveResult(e, Outcome.FAILED);
         }
     }
 
@@ -74,6 +81,9 @@ public class RegistrationController {
     {
         if(result.outcome == Outcome.CREATED) {
             return ResponseEntity.created(getUri(result.registrationId)).build();
+        }
+        else if(result.outcome == Outcome.CONFLICT){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(result.throwable.getMessage());
         }
         else {
             StringWriter stringWriter = new StringWriter();
@@ -89,16 +99,15 @@ public class RegistrationController {
         private Throwable throwable;
         private Outcome outcome;
 
-        public RegistrationSaveResult() {}
         RegistrationSaveResult(String registrationId)
         {
             this.registrationId = registrationId;
             this.outcome = Outcome.CREATED;
         }
-        RegistrationSaveResult(Throwable throwable)
+        RegistrationSaveResult(Throwable throwable, Outcome outcome)
         {
             this.throwable = throwable;
-            this.outcome = Outcome.FAILED;
+            this.outcome = outcome;
         }
 
     }
@@ -106,6 +115,7 @@ public class RegistrationController {
     private enum Outcome
     {
         CREATED,
+        CONFLICT,
         FAILED
     }
 }

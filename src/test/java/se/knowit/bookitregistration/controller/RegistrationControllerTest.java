@@ -11,11 +11,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.knowit.bookitregistration.dto.RegistrationDTO;
 import se.knowit.bookitregistration.dto.RegistrationMapper;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.RegistrationService;
+import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
 import java.util.UUID;
 
@@ -74,6 +76,17 @@ class RegistrationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"badRequest\" : \"true\"}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void postRequest_DuplicateRegistration_ShouldReturn_409() throws Exception {
+        String incomingJson = "{\"eventId\" : \"" + UUID.randomUUID().toString() + "\", \"email\" : \" + test@test.com\"}";
+        MockHttpServletRequestBuilder postRequest = post(PATH)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(incomingJson);
+        mockMvc.perform(postRequest).andReturn();
+        when(registrationService.save(any())).thenThrow(ConflictingEntityException.class);
+        mockMvc.perform(postRequest).andExpect(status().isConflict());
     }
 
     @Test
