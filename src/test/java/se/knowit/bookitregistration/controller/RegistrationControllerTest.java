@@ -19,6 +19,7 @@ import se.knowit.bookitregistration.service.RegistrationService;
 
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -26,13 +27,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 class RegistrationControllerTest {
+    public static final String PATH = "/api/v1/registrations";
     private static final UUID DEFAULT_UUID = UUID.fromString("72ab7c8b-c0d5-4ab2-8c63-5cf1ad0b439b");
-
-    @InjectMocks
-    private RegistrationController registrationController;
 
     @Mock
     private RegistrationService registrationService;
+
+    @InjectMocks
+    private RegistrationController registrationController;
 
     private MockMvc mockMvc;
 
@@ -49,15 +51,28 @@ class RegistrationControllerTest {
         RegistrationDTO dto = getRegistrationDTOFromJson(json);
         Registration savedRegistration = mapper.fromDTO(dto);
         savedRegistration.setRegistrationId(DEFAULT_UUID);
+        savedRegistration.setId(1L);
 
-        when(registrationService.save(eq(savedRegistration))).thenReturn(savedRegistration);
+        when(registrationService.save(eq(mapper.fromDTO(dto)))).thenReturn(savedRegistration);
 
         MvcResult result = mockMvc.perform(
-                post("/api/v1/registrations")
+                post(PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
                 .andReturn();
+    }
+
+    @Test
+    void postRequest_WithInvalidData_ShouldReturn_400() throws Exception {
+
+        when(registrationService.save(any())).thenThrow(IllegalArgumentException.class);
+
+        mockMvc.perform(
+                post(PATH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"badRequest\" : \"true\"}"))
+                .andExpect(status().isBadRequest());
     }
 
     private RegistrationDTO getRegistrationDTOFromJson(String incomingJson) throws JsonProcessingException {
