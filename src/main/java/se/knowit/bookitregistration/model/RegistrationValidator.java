@@ -24,6 +24,6 @@ public class RegistrationValidator {
 
     private void ensureIsNotNullOrBlank(String value)
     {
-        if(value == null || value.isBlank()) throw new IllegalArgumentException();
+        if(value == null || value.isBlank() || !value.matches("^(.+)@(.+)$")) throw new IllegalArgumentException();
     }
 }
