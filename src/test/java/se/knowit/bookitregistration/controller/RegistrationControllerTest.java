@@ -67,15 +67,11 @@ class RegistrationControllerTest {
         savedRegistration.setId(1L);
         
         when(registrationService.findAll()).thenReturn(Set.of(savedRegistration));
-        String returnedJson = mockMvc.perform(
-                get(PATH)
-                        .accept(MediaType.APPLICATION_JSON))
+        String returnedJson = mockMvc.perform(get(PATH).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn().getResponse().getContentAsString();
-        System.out.println("returnedJson = " + returnedJson);
         List<RegistrationDTO> registrationsFromJson = getRegistrationsFromJson(returnedJson);
-        System.out.println("registrationsFromJson = " + registrationsFromJson);
         Registration returnedRegistration = mapper.fromDTO(registrationsFromJson.get(0));
         returnedRegistration.setId(savedRegistration.getId()); //Not part of the dto
         assertEquals(savedRegistration, returnedRegistration);
