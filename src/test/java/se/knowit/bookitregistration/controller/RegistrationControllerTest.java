@@ -54,11 +54,8 @@ class RegistrationControllerTest {
     @Test
     void requestForAllRegistrationsShouldReturn_404NotFound_WhenNoRegistrationsAreAvailable() throws Exception {
         when(registrationService.findAll()).thenReturn(Set.of());
-        mockMvc.perform(
-                get(PATH)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status()
-                        .isNotFound());
+        mockMvc.perform(get(PATH).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
     
     @Test
