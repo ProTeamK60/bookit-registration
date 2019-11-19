@@ -1,9 +1,6 @@
 package se.knowit.bookitregistration.controller;
 
-import com.fasterxml.jackson.core.JsonParser;
-import net.minidev.json.reader.JsonWriter;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
