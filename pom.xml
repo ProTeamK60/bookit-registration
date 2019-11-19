@@ -158,32 +158,6 @@
 				<artifactId>docker-maven-plugin</artifactId>
 				<version>0.20.1</version>
 				<executions>
-					<!--<execution>
-						<id>prepare-it-bookit</id>
-						<phase>pre-integration-test</phase>
-						<goals>
-							<goal>start</goal>
-						</goals>
-						<configuration>
-							<images>
-								<image>
-									<name>bookit-registration:0.0.1-SNAPSHOT</name>
-									<alias>bookit</alias>
-									<run>
-										<ports>
-											<port>tomcat.port:${tomcat.port}</port>
-										</ports>
-										<wait>
-											<http>
-												<url>http://localhost:${tomcat.port}/api/v1/</url>
-											</http>
-											<time>10000</time>
-										</wait>
-									</run>
-								</image>
-							</images>
-						</configuration>
-					</execution>-->
 					<execution>
 						<id>remove-bookit</id>
 						<phase>post-integration-test</phase>
