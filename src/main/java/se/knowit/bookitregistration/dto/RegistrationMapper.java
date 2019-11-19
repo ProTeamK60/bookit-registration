@@ -10,6 +10,9 @@ public class RegistrationMapper {
         if (notNullOrBlank(dto.getEventId())) {
             registration.setEventId(UUID.fromString(dto.getEventId()));
         }
+        if (notNullOrBlank(dto.getRegistrationId())){
+            registration.setRegistrationId(UUID.fromString(dto.getRegistrationId()));
+        }
         registration.setEmail(dto.getEmail());
         return registration;
     }
