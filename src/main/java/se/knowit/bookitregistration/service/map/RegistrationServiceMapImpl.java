@@ -1,14 +1,15 @@
-package se.knowit.bookitregistration.service;
+package se.knowit.bookitregistration.service.map;
 
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.model.RegistrationValidator;
+import se.knowit.bookitregistration.service.RegistrationService;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RegistrationServiceMapImpl implements RegistrationService {
-    private final Map<Long, Registration> map;
+    private final Map<Long, Registration> registrationStore;
     private IdentityHandler identityHandler;
     private RegistrationValidator registrationValidator;
 
@@ -16,15 +17,15 @@ public class RegistrationServiceMapImpl implements RegistrationService {
         this(new ConcurrentHashMap<>());
     }
 
-    RegistrationServiceMapImpl(Map<Long, Registration> map) {
-        this.map = map;
+    RegistrationServiceMapImpl(Map<Long, Registration> registrationStore) {
+        this.registrationStore = registrationStore;
         this.identityHandler = new IdentityHandler();
         this.registrationValidator = new RegistrationValidator();
     }
 
     @Override
     public Set<Registration> findAll() {
-        return Set.copyOf(map.values());
+        return Set.copyOf(registrationStore.values());
     }
 
     @Override
@@ -36,13 +37,13 @@ public class RegistrationServiceMapImpl implements RegistrationService {
     }
 
     @Override
-    public void delete(String id) {
-        Optional<Registration> registrationToDelete = map.values()
+    public void delete(String registrationId) {
+        Optional<Registration> registrationToDelete = registrationStore.values()
                 .stream()
-                .filter(r -> r.getRegistrationId().toString().equals(id))
+                .filter(r -> r.getRegistrationId().toString().equals(registrationId))
                 .findFirst();
 
-        registrationToDelete.ifPresent(registration -> map.remove(registration.getId()));
+        registrationToDelete.ifPresent(registration -> registrationStore.remove(registration.getId()));
     }
 
     private void assignRequiredIds(Registration registration) {
@@ -51,7 +52,7 @@ public class RegistrationServiceMapImpl implements RegistrationService {
     }
 
     private void persistRegistration(Registration registration) throws ConflictingEntityException {
-        Optional<Registration> registrationToAdd = map.values()
+        Optional<Registration> registrationToAdd = registrationStore.values()
                 .stream()
                 .filter(r -> r.getEventId().toString().equals(registration.getEventId().toString()))
                 .filter(r -> r.getEmail().equals(registration.getEmail()))
@@ -59,7 +60,7 @@ public class RegistrationServiceMapImpl implements RegistrationService {
         if(registrationToAdd.isPresent()) {
             throw new ConflictingEntityException("Given email address is already present.");
         }
-        map.put(registration.getId(), registration);
+        registrationStore.put(registration.getId(), registration);
     }
 
     private static class IdentityHandler {
@@ -77,7 +78,7 @@ public class RegistrationServiceMapImpl implements RegistrationService {
 
         Long getNextId(RegistrationServiceMapImpl registrationServiceMap) {
             try {
-                return Collections.max(registrationServiceMap.map.keySet()) + 1L;
+                return Collections.max(registrationServiceMap.registrationStore.keySet()) + 1L;
             } catch (NoSuchElementException e) {
                 return 1L;
             }
