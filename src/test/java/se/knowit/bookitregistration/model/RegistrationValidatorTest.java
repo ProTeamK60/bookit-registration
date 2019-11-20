@@ -4,7 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class RegistrationValidatorTest {
 
@@ -37,7 +38,7 @@ public class RegistrationValidatorTest {
         Registration incomingRegistration = new Registration();
         Participant participant = new Participant("test@test.com");
         incomingRegistration.setParticipant(participant);
-        assertThrows(NullPointerException.class, () -> validator.ensureRegistrationIsValidOrThrowException(incomingRegistration));
+        assertThrows(IllegalArgumentException.class, () -> validator.ensureRegistrationIsValidOrThrowException(incomingRegistration));
     }
 
 }

@@ -13,7 +13,7 @@ public class RegistrationValidator {
     
     private void ensureEventIdIsValid(Registration registration) {
         if (registration.getEventId() == null) {
-            throw new NullPointerException();
+            throw new IllegalArgumentException("Null EventId");
         }
     }
 

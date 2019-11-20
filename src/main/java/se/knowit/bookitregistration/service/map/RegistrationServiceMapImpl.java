@@ -1,18 +1,19 @@
 package se.knowit.bookitregistration.service.map;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.model.RegistrationValidator;
 import se.knowit.bookitregistration.service.RegistrationService;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class RegistrationServiceMapImpl implements RegistrationService {
     private final Map<Long, Registration> registrationStore;
@@ -25,7 +26,7 @@ public class RegistrationServiceMapImpl implements RegistrationService {
 
     RegistrationServiceMapImpl(Map<Long, Registration> registrationStore) {
         this.registrationStore = registrationStore;
-        this.identityHandler = new IdentityHandler();
+        this.identityHandler = new IdentityHandler(this.registrationStore.size());
         this.registrationValidator = new RegistrationValidator();
     }
 
@@ -53,26 +54,45 @@ public class RegistrationServiceMapImpl implements RegistrationService {
     }
 
     private void assignRequiredIds(Registration registration) {
-        identityHandler.assignPersistenceIdIfNotSet(registration, this);
+        identityHandler.assignPersistenceIdIfNotSet(registration);
         identityHandler.assignRegistrationIdIfNotSet(registration);
     }
 
     private void persistRegistration(Registration registration) throws ConflictingEntityException {
-        Optional<Registration> registrationToAdd = registrationStore.values()
+        boolean alreadyRegistered = registrationStore.values()
                 .stream()
-                .filter(r -> r.getEventId().toString().equals(registration.getEventId().toString()))
-                .filter(r -> r.getParticipant().getEmail().equals(registration.getParticipant().getEmail()))
-                .findFirst();
-        if(registrationToAdd.isPresent()) {
-            throw new ConflictingEntityException("The participant is already registered for this event.");
+                .filter(isSameEvent(registration))
+                .anyMatch(isParticipantAlreadyRegistered(registration));
+        if (alreadyRegistered) {
+            throw supplyConflictException(registration).get();
         }
-        registrationStore.put(registration.getId(), registration);
+        registrationStore.putIfAbsent(registration.getId(), registration);
     }
-
+    
+    private Predicate<Registration> isSameEvent(Registration registration) {
+        return r -> r.getEventId().toString().equals(registration.getEventId().toString());
+    }
+    
+    private Predicate<Registration> isParticipantAlreadyRegistered(Registration registration) {
+        return r -> r.getParticipant().getEmail().equals(registration.getParticipant().getEmail());
+    }
+    
+    private Supplier<ConflictingEntityException> supplyConflictException(Registration registration) {
+        String template = "The participant %s is already registered for this event.";
+        String message = String.format(template, registration.getParticipant());
+        return () -> new ConflictingEntityException(message);
+    }
+    
     private static class IdentityHandler {
-        void assignPersistenceIdIfNotSet(Registration registration, RegistrationServiceMapImpl registrationServiceMap) {
+        private final AtomicLong idValue;
+        
+        public IdentityHandler(int startIndex) {
+            idValue = new AtomicLong(startIndex);
+        }
+        
+        void assignPersistenceIdIfNotSet(Registration registration) {
             if (registration.getRegistrationId() == null) {
-                registration.setId(getNextId(registrationServiceMap));
+                registration.setId(getNextId());
             }
         }
 
@@ -81,20 +101,20 @@ public class RegistrationServiceMapImpl implements RegistrationService {
                 registration.setRegistrationId(UUID.randomUUID());
             }
         }
-
-        Long getNextId(RegistrationServiceMapImpl registrationServiceMap) {
-            try {
-                return Collections.max(registrationServiceMap.registrationStore.keySet()) + 1L;
-            } catch (NoSuchElementException e) {
-                return 1L;
-            }
+        
+        Long getNextId() {
+            return idValue.incrementAndGet();
         }
     }
 
 	@Override
 	public Set<Registration> findRegistrationsByEventId(String eventId) {
 		return findAll().stream()
-				.filter(registration -> registration.getEventId().equals(UUID.fromString(eventId)))
+                .filter(haveSameEventId(eventId))
 				.collect(Collectors.toSet());
 	}
+    
+    private Predicate<Registration> haveSameEventId(String eventId) {
+        return registration -> registration.getEventId().equals(UUID.fromString(eventId));
+    }
 }
