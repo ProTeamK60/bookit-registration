@@ -8,7 +8,9 @@ import java.util.Set;
 public interface RegistrationService {
 
     Set<Registration> findAll();
-
+    
+    Set<Registration> findRegistrationsByEventId(String eventId);
+    
     Registration save(Registration object) throws ConflictingEntityException;
 
     void delete(String id);

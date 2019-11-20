@@ -1,8 +1,22 @@
 package se.knowit.bookitregistration.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,23 +27,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import se.knowit.bookitregistration.dto.RegistrationDTO;
 import se.knowit.bookitregistration.dto.RegistrationMapper;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.RegistrationService;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
-
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class RegistrationControllerTest {
@@ -79,7 +86,8 @@ class RegistrationControllerTest {
     
     @Test
     void postRequest_WithValidData_ShouldReturn_201Created() throws Exception {
-        String json = "{\"eventId\": \"" + UUID.randomUUID() + "\", \"email\": \"test@test.com\"}";
+        String json = "{\"eventId\": \"" + UUID.randomUUID() + "\", \"participant\": {\"email\": \"test@test.com\"}}";
+       
         RegistrationDTO dto = getRegistrationDTOFromJson(json);
         Registration savedRegistration = mapper.fromDTO(dto);
         savedRegistration.setRegistrationId(DEFAULT_UUID);
@@ -108,7 +116,9 @@ class RegistrationControllerTest {
 
     @Test
     void postRequest_DuplicateRegistration_ShouldReturn_409() throws Exception {
-        String incomingJson = "{\"eventId\" : \"" + UUID.randomUUID().toString() + "\", \"email\" : \" + test@test.com\"}";
+    	
+    	String incomingJson = "{\"eventId\": \"" + UUID.randomUUID() + "\", \"participant\": {\"email\": \"test@test.com\"}}";
+         
         MockHttpServletRequestBuilder postRequest = post(PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(incomingJson);

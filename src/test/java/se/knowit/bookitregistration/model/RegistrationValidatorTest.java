@@ -15,7 +15,8 @@ public class RegistrationValidatorTest {
     public void testValidatingAValidRegistration() {
         Registration incomingRegistration = new Registration();
         incomingRegistration.setEventId(DEFAULT_UUID);
-        incomingRegistration.setEmail("test@test.com");
+        Participant participant = new Participant("test@test.com");
+        incomingRegistration.setParticipant(participant);
         Registration validRegistration = validator.ensureRegistrationIsValidOrThrowException(incomingRegistration);
         assertEquals(incomingRegistration, validRegistration);
     }
@@ -25,7 +26,8 @@ public class RegistrationValidatorTest {
     {
         Registration incomingRegistration = new Registration();
         incomingRegistration.setEventId(DEFAULT_UUID);
-        incomingRegistration.setEmail("test");
+        Participant participant = new Participant("test");
+        incomingRegistration.setParticipant(participant);
         assertThrows(IllegalArgumentException.class, () -> validator.ensureRegistrationIsValidOrThrowException(incomingRegistration));
     }
 
@@ -33,7 +35,8 @@ public class RegistrationValidatorTest {
     public void testValidatingRegistrationWithInvalidEventIdShouldThrowException()
     {
         Registration incomingRegistration = new Registration();
-        incomingRegistration.setEmail("test@test.com");
+        Participant participant = new Participant("test@test.com");
+        incomingRegistration.setParticipant(participant);
         assertThrows(NullPointerException.class, () -> validator.ensureRegistrationIsValidOrThrowException(incomingRegistration));
     }
 

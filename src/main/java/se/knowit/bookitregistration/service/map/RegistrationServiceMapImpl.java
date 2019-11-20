@@ -1,12 +1,18 @@
 package se.knowit.bookitregistration.service.map;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.model.RegistrationValidator;
 import se.knowit.bookitregistration.service.RegistrationService;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class RegistrationServiceMapImpl implements RegistrationService {
     private final Map<Long, Registration> registrationStore;
@@ -55,10 +61,10 @@ public class RegistrationServiceMapImpl implements RegistrationService {
         Optional<Registration> registrationToAdd = registrationStore.values()
                 .stream()
                 .filter(r -> r.getEventId().toString().equals(registration.getEventId().toString()))
-                .filter(r -> r.getEmail().equals(registration.getEmail()))
+                .filter(r -> r.getParticipant().getEmail().equals(registration.getParticipant().getEmail()))
                 .findFirst();
         if(registrationToAdd.isPresent()) {
-            throw new ConflictingEntityException("Given email address is already present.");
+            throw new ConflictingEntityException("The participant is already registered for this event.");
         }
         registrationStore.put(registration.getId(), registration);
     }
@@ -84,4 +90,11 @@ public class RegistrationServiceMapImpl implements RegistrationService {
             }
         }
     }
+
+	@Override
+	public Set<Registration> findRegistrationsByEventId(String eventId) {
+		return findAll().stream()
+				.filter(registration -> registration.getEventId().equals(UUID.fromString(eventId)))
+				.collect(Collectors.toSet());
+	}
 }

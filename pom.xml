@@ -18,7 +18,7 @@
 		<java.version>13</java.version>
 		<dockerfile-maven-version>1.4.13</dockerfile-maven-version>
 		<spring-cloud-sleuth.version>2.1.0.RELEASE</spring-cloud-sleuth.version>
-		<tomcat.port>50000</tomcat.port>
+		<tomcat.port>8081</tomcat.port>
 	</properties>
 
 	<dependencies>
@@ -167,6 +167,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			
 		</plugins>
 	</build>
 

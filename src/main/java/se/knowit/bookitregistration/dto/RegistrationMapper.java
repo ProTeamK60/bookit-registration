@@ -1,5 +1,6 @@
 package se.knowit.bookitregistration.dto;
 
+import se.knowit.bookitregistration.model.Participant;
 import se.knowit.bookitregistration.model.Registration;
 
 import java.util.UUID;
@@ -13,19 +14,26 @@ public class RegistrationMapper {
         if (notNullOrBlank(dto.getRegistrationId())) {
             registration.setRegistrationId(UUID.fromString(dto.getRegistrationId()));
         }
-        registration.setEmail(dto.getEmail());
+        if (null != dto.getParticipant() && notNullOrBlank(dto.getParticipant().getEmail())) {
+        	Participant participant = new Participant(dto.getParticipant().getEmail());
+        	registration.setParticipant(participant);
+        }
         return registration;
     }
     
     public RegistrationDTO toDTO(Registration model) {
+        
         RegistrationDTO dto = new RegistrationDTO();
         if (model.getEventId() != null) {
             dto.setEventId(model.getEventId().toString());
         }
         if (model.getRegistrationId() != null) {
             dto.setRegistrationId(model.getRegistrationId().toString());
+        	ParticipantDTO participant = new ParticipantDTO();
+        	participant.setEmail(model.getParticipant().getEmail());
+        	dto.setParticipant(participant);
+
         }
-        dto.setEmail(model.getEmail());
         return dto;
     }
     

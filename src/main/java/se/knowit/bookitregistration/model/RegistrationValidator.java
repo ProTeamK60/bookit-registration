@@ -6,7 +6,7 @@ public class RegistrationValidator {
     
     public Registration ensureRegistrationIsValidOrThrowException(Registration incomingRegistration) {
         Registration registration = Objects.requireNonNull(incomingRegistration, "Registration must not be null.");
-        ensureEmailIsValid(registration);
+        ensureParticipantIsValid(registration);
         ensureEventIdIsValid(registration);
         return registration;
     }
@@ -16,11 +16,15 @@ public class RegistrationValidator {
             throw new NullPointerException();
         }
     }
-    
-    private void ensureEmailIsValid(Registration registration) {
-        String email = registration.getEmail();
+
+    private void ensureParticipantIsValid(Registration registration) {
+    	if (registration.getParticipant() == null ) {
+    		 throw new IllegalArgumentException("Null Participant Object");
+    	}
+    	
+        String email = registration.getParticipant().getEmail();
         if (email == null || email.isBlank() || !email.matches("^(.+)@(.+)$")) {
-            throw new IllegalArgumentException("Invalid email: " + email);
+        	throw new IllegalArgumentException("Invalid email: " + email);
         }
     }
 }

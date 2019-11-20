@@ -2,6 +2,8 @@ package se.knowit.bookitregistration.service.map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import se.knowit.bookitregistration.model.Participant;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
@@ -62,7 +64,8 @@ class RegistrationServiceMapImplTest {
         service.save(validRegistration());
         Registration incomingRegistration = new Registration();
         incomingRegistration.setEventId(DEFAULT_UUID);
-        incomingRegistration.setEmail("test@test.com");
+        Participant participant = new Participant("test@test.com");
+        incomingRegistration.setParticipant(participant);
         Registration savedRegistration = service.save(incomingRegistration);
         assertEquals(2L, savedRegistration.getId());
         assertTrue(uuidIsNotNullOrBlank(incomingRegistration.getRegistrationId()));
@@ -71,7 +74,8 @@ class RegistrationServiceMapImplTest {
     @Test
     void testSaveAnInvalidRegistrationShouldThrowException() {
         Registration incomingRegistration = validRegistration();
-        incomingRegistration.setEmail("test");
+        Participant participant = new Participant("test");
+        incomingRegistration.setParticipant(participant);
         assertThrows(IllegalArgumentException.class, () -> service.save(incomingRegistration));
     }
     
@@ -84,7 +88,8 @@ class RegistrationServiceMapImplTest {
     private Registration validRegistration() {
         Registration registration = new Registration();
         registration.setEventId(DEFAULT_UUID);
-        registration.setEmail("valid@email.com");
+        Participant participant = new Participant("valid@email.com");
+        registration.setParticipant(participant);
         return registration;
     }
     
