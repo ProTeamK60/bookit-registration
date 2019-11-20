@@ -67,8 +67,9 @@ class RegistrationControllerTest {
     
     @Test
     void requestForAllRegistrationsShouldReturnJsonWithAllRegistrations() throws Exception {
-        String json = "{\"eventId\": \"" + UUID.randomUUID() + "\", \"email\": \"test@test.com\"}";
-        RegistrationDTO dto = getRegistrationDTOFromJson(json);
+    	String json = "{\"eventId\": \"" + UUID.randomUUID() + "\", \"participant\": {\"email\": \"test@test.com\"}}";
+        
+    	RegistrationDTO dto = getRegistrationDTOFromJson(json);
         Registration savedRegistration = mapper.fromDTO(dto);
         savedRegistration.setRegistrationId(DEFAULT_UUID);
         savedRegistration.setId(1L);
