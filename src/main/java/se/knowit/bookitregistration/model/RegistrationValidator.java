@@ -16,15 +16,15 @@ public class RegistrationValidator {
             throw new IllegalArgumentException("Null EventId");
         }
     }
-
+    
     private void ensureParticipantIsValid(Registration registration) {
-    	if (registration.getParticipant() == null ) {
-    		 throw new IllegalArgumentException("Null Participant Object");
-    	}
-    	
+        if (registration.getParticipant() == null) {
+            throw new IllegalArgumentException("Null Participant Object");
+        }
+        
         String email = registration.getParticipant().getEmail();
         if (email == null || email.isBlank() || !email.matches("^(.+)@(.+)$")) {
-        	throw new IllegalArgumentException("Invalid email: " + email);
+            throw new IllegalArgumentException("Invalid email: " + email);
         }
     }
 }
