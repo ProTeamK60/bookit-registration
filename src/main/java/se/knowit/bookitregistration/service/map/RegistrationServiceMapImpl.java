@@ -15,6 +15,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.requireNonNull;
+
 public class RegistrationServiceMapImpl implements RegistrationService {
     private final Map<Long, Registration> registrationStore;
     private IdentityHandler identityHandler;
@@ -45,12 +47,24 @@ public class RegistrationServiceMapImpl implements RegistrationService {
 
     @Override
     public void delete(String registrationId) {
+        requireNonNull(registrationId, "registrationId can't be null");
         Optional<Registration> registrationToDelete = registrationStore.values()
                 .stream()
                 .filter(r -> r.getRegistrationId().toString().equals(registrationId))
                 .findFirst();
-
         registrationToDelete.ifPresent(registration -> registrationStore.remove(registration.getId()));
+    }
+
+    @Override
+    public void deleteByEventIdAndEmail(String eventId, String email) {
+        requireNonNull(eventId, "eventId can't be null");
+        requireNonNull(email, "email can't be null");
+
+        Set<Registration> registrationsByEventId = findRegistrationsByEventId(eventId);
+        Optional<Registration> registrationToDelete = registrationsByEventId.stream()
+                .filter(r -> r.getParticipant().getEmail().equals(email))
+                .findFirst();
+        registrationToDelete.ifPresent(r -> delete(r.getRegistrationId().toString()));
     }
 
     private void assignRequiredIds(Registration registration) {
@@ -68,28 +82,28 @@ public class RegistrationServiceMapImpl implements RegistrationService {
         }
         registrationStore.putIfAbsent(registration.getId(), registration);
     }
-    
+
     private Predicate<Registration> isSameEvent(Registration registration) {
         return r -> r.getEventId().toString().equals(registration.getEventId().toString());
     }
-    
+
     private Predicate<Registration> isParticipantAlreadyRegistered(Registration registration) {
         return r -> r.getParticipant().getEmail().equals(registration.getParticipant().getEmail());
     }
-    
+
     private Supplier<ConflictingEntityException> supplyConflictException(Registration registration) {
         String template = "The participant %s is already registered for this event.";
         String message = String.format(template, registration.getParticipant());
         return () -> new ConflictingEntityException(message);
     }
-    
+
     private static class IdentityHandler {
         private final AtomicLong idValue;
-        
-        public IdentityHandler(int startIndex) {
+
+        IdentityHandler(int startIndex) {
             idValue = new AtomicLong(startIndex);
         }
-        
+
         void assignPersistenceIdIfNotSet(Registration registration) {
             if (registration.getRegistrationId() == null) {
                 registration.setId(getNextId());
@@ -101,19 +115,19 @@ public class RegistrationServiceMapImpl implements RegistrationService {
                 registration.setRegistrationId(UUID.randomUUID());
             }
         }
-        
+
         Long getNextId() {
             return idValue.incrementAndGet();
         }
     }
 
-	@Override
-	public Set<Registration> findRegistrationsByEventId(String eventId) {
-		return findAll().stream()
+    @Override
+    public Set<Registration> findRegistrationsByEventId(String eventId) {
+        return findAll().stream()
                 .filter(haveSameEventId(eventId))
-				.collect(Collectors.toSet());
-	}
-    
+                .collect(Collectors.toSet());
+    }
+
     private Predicate<Registration> haveSameEventId(String eventId) {
         return registration -> registration.getEventId().equals(UUID.fromString(eventId));
     }
