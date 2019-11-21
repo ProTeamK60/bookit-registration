@@ -91,9 +91,32 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>1.4.10</version>
+                <configuration>
+                    <excludedClasses>
+                        <excludedClass>se.knowit.bookitregistration.BookitRegistrationApplication</excludedClass>
+                    </excludedClasses>
+                    <excludedTestClasses>
+                    </excludedTestClasses>
+                    <excludedMethods>
+                        <excludedMethod>equals</excludedMethod>
+                        <excludedMethod>hashCode</excludedMethod>
+                    </excludedMethods>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-junit5-plugin</artifactId>
+                        <version>0.10</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
 			<plugin>
 				<groupId>com.spotify</groupId>
 				<artifactId>dockerfile-maven-plugin</artifactId>
