@@ -127,7 +127,7 @@ class RegistrationControllerTest {
         mockMvc.perform(
                 delete(PATH + "/" + DEFAULT_UUID))
                 .andExpect(status().isNoContent());
-        verify(registrationService, times(1)).delete(DEFAULT_UUID.toString());
+        verify(registrationService, times(1)).deleteByRegistrationId(DEFAULT_UUID.toString());
     }
     
     private RegistrationDTO getRegistrationDTOFromJson(String incomingJson) throws JsonProcessingException {
