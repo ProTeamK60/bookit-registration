@@ -2,7 +2,6 @@ package se.knowit.bookitregistration.model;
 
 import org.junit.jupiter.api.Test;
 
-import javax.servlet.http.Part;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
