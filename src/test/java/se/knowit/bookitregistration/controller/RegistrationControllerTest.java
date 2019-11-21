@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.knowit.bookitregistration.dto.RegistrationDTO;
@@ -20,17 +21,17 @@ import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.RegistrationService;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 class RegistrationControllerTest {
@@ -94,7 +95,9 @@ class RegistrationControllerTest {
                 post(PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("location"))
+                .andExpect(header().string("location", "/api/v1/registrations/" + DEFAULT_UUID));
     }
     
     @Test
@@ -106,7 +109,19 @@ class RegistrationControllerTest {
                 post(PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"badRequest\" : \"true\"}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(this::assertResponseContentIsNotEmpty);
+    }
+    
+    private void assertResponseContentIsNotEmpty(MvcResult result) {
+        try {
+            String contentAsString = result.getResponse().getContentAsString();
+            assertNotNull(contentAsString, "content was null");
+            assertFalse(contentAsString.isEmpty(), "content was empty");
+            assertFalse(contentAsString.isBlank(), "content was blank");
+        } catch (UnsupportedEncodingException unsupportedEncodingException) {
+            throw new RuntimeException(unsupportedEncodingException);
+        }
     }
     
     @Test
