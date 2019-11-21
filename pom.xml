@@ -102,7 +102,9 @@
                     </excludedTestClasses>
                     <excludedMethods>
                         <excludedMethod>equals</excludedMethod>
+                        <excludedMethod>canEqual</excludedMethod>
                         <excludedMethod>hashCode</excludedMethod>
+                        <excludedMethod>toString</excludedMethod>
                     </excludedMethods>
                 </configuration>
                 <dependencies>
