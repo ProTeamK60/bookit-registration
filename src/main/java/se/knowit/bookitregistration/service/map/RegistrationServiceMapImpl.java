@@ -71,16 +71,12 @@ public class RegistrationServiceMapImpl implements RegistrationService {
     private void persistRegistration(Registration registration) throws ConflictingEntityException {
         boolean alreadyRegistered = registrationStore.values()
                 .stream()
-                .filter(isSameEvent(registration))
+                .filter(hasSameEventId(registration.getEventId().toString()))
                 .anyMatch(isParticipantAlreadyRegistered(registration));
         if (alreadyRegistered) {
             throw supplyConflictException(registration).get();
         }
         registrationStore.putIfAbsent(registration.getId(), registration);
-    }
-
-    private Predicate<Registration> isSameEvent(Registration registration) {
-        return r -> r.getEventId().toString().equals(registration.getEventId().toString());
     }
 
     private Predicate<Registration> hasSameEventId(String eventId) {
@@ -124,7 +120,7 @@ public class RegistrationServiceMapImpl implements RegistrationService {
     @Override
     public Set<Registration> findRegistrationsByEventId(String eventId) {
         return findAll().stream()
-                .filter(haveSameEventId(eventId))
+                .filter(hasSameEventId(eventId))
                 .collect(Collectors.toSet());
     }
 }
