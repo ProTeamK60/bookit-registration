@@ -98,7 +98,7 @@ class RegistrationControllerTest {
                         .content(json))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("location"))
-                .andExpect(header().string("location", "/api/v1/registrations/" + DEFAULT_UUID));
+                .andExpect(header().string("location", "/api/v1/registrations/" + DEFAULT_REGISTRATION_UUID));
     }
 
     @Test
