@@ -52,24 +52,6 @@ public class RegistrationRepositoryMapImpl implements RegistrationRepository {
         return validRegistration;
     }
 
-    @Override
-    public void delete(String registrationId) {
-        Optional<Registration> registrationToDelete = registrationStore.values()
-                .stream()
-                .filter(r -> r.getRegistrationId().toString().equals(registrationId))
-                .findFirst();
-        registrationToDelete.ifPresent(registration -> registrationStore.remove(registration.getId()));
-    }
-
-    @Override
-    public void deleteByEventIdAndEmail(String eventId, String email) {
-        Set<Registration> registrationsByEventId = findRegistrationsByEventId(eventId);
-        Optional<Registration> registrationToDelete = registrationsByEventId.stream()
-                .filter(r -> r.getParticipant().getEmail().equals(email))
-                .findFirst();
-        registrationToDelete.ifPresent(r -> delete(r.getRegistrationId().toString()));
-    }
-
     private void assignRequiredIds(Registration registration) {
         identityHandler.assignPersistenceIdIfNotSet(registration);
         identityHandler.assignRegistrationIdIfNotSet(registration);
@@ -122,12 +104,5 @@ public class RegistrationRepositoryMapImpl implements RegistrationRepository {
         Long getNextId() {
             return idValue.incrementAndGet();
         }
-    }
-
-    @Override
-    public Set<Registration> findRegistrationsByEventId(String eventId) {
-        return findAll().stream()
-                .filter(hasSameEventId(eventId))
-                .collect(Collectors.toSet());
     }
 }
