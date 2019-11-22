@@ -140,7 +140,15 @@ class RegistrationControllerTest {
         verify(registrationService, times(1))
                 .deleteByEventIdAndEmail(DEFAULT_EVENT_UUID.toString(), testEmail);
     }
-
+    
+    @Test
+    void deleteWithInvalidInputShouldStillReturn_204() throws Exception {
+        mockMvc.perform(delete(PATH + "/junk/garbage"))
+                .andExpect(status().isNoContent());
+        verify(registrationService)
+                .deleteByEventIdAndEmail("garbage", "junk");
+    }
+    
     private RegistrationDTO getRegistrationDTOFromJson(String incomingJson) throws JsonProcessingException {
         return new ObjectMapper().readValue(incomingJson, RegistrationDTO.class);
     }
