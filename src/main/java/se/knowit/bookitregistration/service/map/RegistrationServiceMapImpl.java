@@ -47,7 +47,6 @@ public class RegistrationServiceMapImpl implements RegistrationService {
 
     @Override
     public void delete(String registrationId) {
-        requireNonNull(registrationId, "registrationId can't be null");
         Optional<Registration> registrationToDelete = registrationStore.values()
                 .stream()
                 .filter(r -> r.getRegistrationId().toString().equals(registrationId))
@@ -57,9 +56,6 @@ public class RegistrationServiceMapImpl implements RegistrationService {
 
     @Override
     public void deleteByEventIdAndEmail(String eventId, String email) {
-        requireNonNull(eventId, "eventId can't be null");
-        requireNonNull(email, "email can't be null");
-
         Set<Registration> registrationsByEventId = findRegistrationsByEventId(eventId);
         Optional<Registration> registrationToDelete = registrationsByEventId.stream()
                 .filter(r -> r.getParticipant().getEmail().equals(email))
@@ -85,6 +81,10 @@ public class RegistrationServiceMapImpl implements RegistrationService {
 
     private Predicate<Registration> isSameEvent(Registration registration) {
         return r -> r.getEventId().toString().equals(registration.getEventId().toString());
+    }
+
+    private Predicate<Registration> hasSameEventId(String eventId) {
+        return registration -> registration.getEventId().equals(UUID.fromString(eventId));
     }
 
     private Predicate<Registration> isParticipantAlreadyRegistered(Registration registration) {
@@ -126,9 +126,5 @@ public class RegistrationServiceMapImpl implements RegistrationService {
         return findAll().stream()
                 .filter(haveSameEventId(eventId))
                 .collect(Collectors.toSet());
-    }
-
-    private Predicate<Registration> haveSameEventId(String eventId) {
-        return registration -> registration.getEventId().equals(UUID.fromString(eventId));
     }
 }
