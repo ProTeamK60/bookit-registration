@@ -23,15 +23,15 @@ import static java.util.stream.Collectors.toSet;
 public class RegistrationController {
     static final String BASE_PATH = "/api/v1/registrations";
     private static final URI BASE_URI = URI.create(BASE_PATH + "/");
-    
+
     private final RegistrationMapper mapper;
     private final RegistrationService service;
-    
+
     public RegistrationController(RegistrationService service) {
         this.service = service;
         this.mapper = new RegistrationMapper();
     }
-    
+
     @GetMapping({"", "/"})
     public Set<RegistrationDTO> findAllRegistrations() {
         Set<Registration> allRegistrations = service.findAll();
@@ -42,23 +42,29 @@ public class RegistrationController {
                 .map(mapper::toDTO)
                 .collect(toSet());
     }
-    
+
     @PostMapping(value = {"", "/"}, consumes = "application/json", produces = "application/json")
     public ResponseEntity<String> registerToEvent(@RequestBody RegistrationDTO dto) {
         RegistrationSaveResult result = trySave(dto);
         return buildResponseFromRegistrationSaveResult(result);
     }
-    
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable String id) {
-        service.deleteByRegistrationId(id);
+    public ResponseEntity<String> deleteByRegistrationId(@PathVariable String id) {
+        service.delete(id);
         return ResponseEntity.noContent().build();
     }
-    
+
+    @DeleteMapping("/{email}/{eventId}")
+    public ResponseEntity<String> deleteByEmailAndEventId(@PathVariable String email, @PathVariable String eventId) {
+        service.deleteByEventIdAndEmail(eventId, email);
+        return ResponseEntity.noContent().build();
+    }
+
     private ResponseStatusException notFound() {
         return new ResponseStatusException(HttpStatus.NOT_FOUND, "entity not found");
     }
-    
+
     private RegistrationSaveResult trySave(RegistrationDTO incomingRegistration) {
         try {
             Registration saved = service.save(mapper.fromDTO(incomingRegistration));
@@ -69,7 +75,7 @@ public class RegistrationController {
             return new RegistrationSaveResult(e, Outcome.FAILED);
         }
     }
-    
+
     private ResponseEntity<String> buildResponseFromRegistrationSaveResult(RegistrationSaveResult result) {
         if (result.outcome == Outcome.CREATED) {
             return ResponseEntity.created(getUri(result.registrationId)).build();
@@ -81,28 +87,28 @@ public class RegistrationController {
             return ResponseEntity.badRequest().body(stringWriter.toString());
         }
     }
-    
+
     private URI getUri(String uri) {
         return URI.create(BASE_URI.getPath() + uri);
     }
-    
+
     private static class RegistrationSaveResult {
         private String registrationId;
         private Throwable throwable;
         private Outcome outcome;
-    
+
         RegistrationSaveResult(String registrationId) {
             this.registrationId = registrationId;
             this.outcome = Outcome.CREATED;
         }
-    
+
         RegistrationSaveResult(Throwable throwable, Outcome outcome) {
             this.throwable = throwable;
             this.outcome = outcome;
         }
-    
+
     }
-    
+
     private enum Outcome {
         CREATED,
         CONFLICT,

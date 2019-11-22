@@ -14,4 +14,6 @@ public interface RegistrationService {
     Registration save(Registration object) throws ConflictingEntityException;
 
     void deleteByRegistrationId(String id);
+
+    void deleteByEventIdAndEmail(String eventId, String email);
 }

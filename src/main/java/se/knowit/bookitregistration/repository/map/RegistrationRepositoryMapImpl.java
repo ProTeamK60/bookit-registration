@@ -52,6 +52,24 @@ public class RegistrationRepositoryMapImpl implements RegistrationRepository {
         return validRegistration;
     }
 
+    @Override
+    public void delete(String registrationId) {
+        Optional<Registration> registrationToDelete = registrationStore.values()
+                .stream()
+                .filter(r -> r.getRegistrationId().toString().equals(registrationId))
+                .findFirst();
+        registrationToDelete.ifPresent(registration -> registrationStore.remove(registration.getId()));
+    }
+
+    @Override
+    public void deleteByEventIdAndEmail(String eventId, String email) {
+        Set<Registration> registrationsByEventId = findRegistrationsByEventId(eventId);
+        Optional<Registration> registrationToDelete = registrationsByEventId.stream()
+                .filter(r -> r.getParticipant().getEmail().equals(email))
+                .findFirst();
+        registrationToDelete.ifPresent(r -> delete(r.getRegistrationId().toString()));
+    }
+
     private void assignRequiredIds(Registration registration) {
         identityHandler.assignPersistenceIdIfNotSet(registration);
         identityHandler.assignRegistrationIdIfNotSet(registration);
@@ -60,7 +78,7 @@ public class RegistrationRepositoryMapImpl implements RegistrationRepository {
     private void persistRegistration(Registration registration) throws ConflictingEntityException {
         boolean alreadyRegistered = registrationStore.values()
                 .stream()
-                .filter(isSameEvent(registration))
+                .filter(hasSameEventId(registration.getEventId().toString()))
                 .anyMatch(isParticipantAlreadyRegistered(registration));
         if (alreadyRegistered) {
             throw supplyConflictException(registration).get();
@@ -68,8 +86,8 @@ public class RegistrationRepositoryMapImpl implements RegistrationRepository {
         registrationStore.putIfAbsent(registration.getId(), registration);
     }
 
-    private Predicate<Registration> isSameEvent(Registration registration) {
-        return r -> r.getEventId().toString().equals(registration.getEventId().toString());
+    private Predicate<Registration> hasSameEventId(String eventId) {
+        return registration -> registration.getEventId().equals(UUID.fromString(eventId));
     }
 
     private Predicate<Registration> isParticipantAlreadyRegistered(Registration registration) {
@@ -104,5 +122,12 @@ public class RegistrationRepositoryMapImpl implements RegistrationRepository {
         Long getNextId() {
             return idValue.incrementAndGet();
         }
+    }
+
+    @Override
+    public Set<Registration> findRegistrationsByEventId(String eventId) {
+        return findAll().stream()
+                .filter(hasSameEventId(eventId))
+                .collect(Collectors.toSet());
     }
 }

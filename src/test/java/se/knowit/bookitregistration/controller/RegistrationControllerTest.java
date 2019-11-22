@@ -35,39 +35,40 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 class RegistrationControllerTest {
     private static final String PATH = "/api/v1/registrations";
-    private static final UUID DEFAULT_UUID = UUID.fromString("72ab7c8b-c0d5-4ab2-8c63-5cf1ad0b439b");
-    
+    private static final UUID DEFAULT_REGISTRATION_UUID = UUID.fromString("72ab7c8b-c0d5-4ab2-8c63-5cf1ad0b439b");
+    private static final UUID DEFAULT_EVENT_UUID = UUID.fromString("33bea76c-b291-452f-99a2-ad2ba19c7371");
+
     @Mock
     private RegistrationService registrationService;
-    
+
     @InjectMocks
     private RegistrationController registrationController;
-    
+
     private MockMvc mockMvc;
-    
+
     private RegistrationMapper mapper = new RegistrationMapper();
-    
+
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(registrationController).build();
     }
-    
+
     @Test
     void requestForAllRegistrationsShouldReturn_404NotFound_WhenNoRegistrationsAreAvailable() throws Exception {
         when(registrationService.findAll()).thenReturn(Set.of());
         mockMvc.perform(get(PATH).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
-    
+
     @Test
     void requestForAllRegistrationsShouldReturnJsonWithAllRegistrations() throws Exception {
         String json = "{\"eventId\": \"" + UUID.randomUUID() + "\", \"participant\": {\"email\": \"test@test.com\"}}";
-    
+
         RegistrationDTO dto = getRegistrationDTOFromJson(json);
         Registration savedRegistration = mapper.fromDTO(dto);
-        savedRegistration.setRegistrationId(DEFAULT_UUID);
+        savedRegistration.setRegistrationId(DEFAULT_REGISTRATION_UUID);
         savedRegistration.setId(1L);
-        
+
         when(registrationService.findAll()).thenReturn(Set.of(savedRegistration));
         String returnedJson = mockMvc.perform(get(PATH).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -78,42 +79,42 @@ class RegistrationControllerTest {
         returnedRegistration.setId(savedRegistration.getId()); //Not part of the dto
         assertEquals(savedRegistration, returnedRegistration);
     }
-    
+
     @Test
     void postRequest_WithValidData_ShouldReturn_201Created() throws Exception {
         String json = "{\"eventId\": \"" + UUID.randomUUID() + "\", \"participant\": {\"email\": \"test@test.com\"}}";
-    
+
         RegistrationDTO dto = getRegistrationDTOFromJson(json);
         Registration savedRegistration = mapper.fromDTO(dto);
-        savedRegistration.setRegistrationId(DEFAULT_UUID);
+        savedRegistration.setRegistrationId(DEFAULT_REGISTRATION_UUID);
         savedRegistration.setId(1L);
-    
+
         when(registrationService.save(eq(mapper.fromDTO(dto)))).thenReturn(savedRegistration);
-    
+
         mockMvc.perform(
                 post(PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated());
     }
-    
+
     @Test
     void postRequest_WithInvalidData_ShouldReturn_400() throws Exception {
-        
+
         when(registrationService.save(any())).thenThrow(IllegalArgumentException.class);
-        
+
         mockMvc.perform(
                 post(PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"badRequest\" : \"true\"}"))
                 .andExpect(status().isBadRequest());
     }
-    
+
     @Test
     void postRequest_DuplicateRegistration_ShouldReturn_409() throws Exception {
-        
+
         String incomingJson = "{\"eventId\": \"" + UUID.randomUUID() + "\", \"participant\": {\"email\": \"test@test.com\"}}";
-        
+
         MockHttpServletRequestBuilder postRequest = post(PATH)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(incomingJson);
@@ -121,19 +122,37 @@ class RegistrationControllerTest {
         when(registrationService.save(any())).thenThrow(ConflictingEntityException.class);
         mockMvc.perform(postRequest).andExpect(status().isConflict());
     }
-    
+
     @Test
-    void deleteRequest_Should_DeleteRegistration_And_Return_204_() throws Exception {
+    void deleteByIdRequest_Should_DeleteRegistration_And_Return_204_() throws Exception {
         mockMvc.perform(
-                delete(PATH + "/" + DEFAULT_UUID))
+                delete(PATH + "/" + DEFAULT_REGISTRATION_UUID))
                 .andExpect(status().isNoContent());
-        verify(registrationService, times(1)).deleteByRegistrationId(DEFAULT_UUID.toString());
+        verify(registrationService, times(1)).deleteByRegistrationId(DEFAULT_REGISTRATION_UUID.toString());
+    }
+
+    @Test
+    void deleteByEventIdAndEmailRequest_Should_DeleteRegistration_And_Return_204_() throws Exception {
+        String testEmail = "test@test.com";
+        mockMvc.perform(
+                delete(PATH + "/" + testEmail + "/" + DEFAULT_EVENT_UUID))
+                .andExpect(status().isNoContent());
+        verify(registrationService, times(1))
+                .deleteByEventIdAndEmail(DEFAULT_EVENT_UUID.toString(), testEmail);
+    }
+
+    @Test
+    void deleteWithInvalidInputShouldStillReturn_204() throws Exception {
+        mockMvc.perform(delete(PATH + "/junk/garbage"))
+                .andExpect(status().isNoContent());
+        verify(registrationService)
+                .deleteByEventIdAndEmail("garbage", "junk");
     }
     
     private RegistrationDTO getRegistrationDTOFromJson(String incomingJson) throws JsonProcessingException {
         return new ObjectMapper().readValue(incomingJson, RegistrationDTO.class);
     }
-    
+
     private List<RegistrationDTO> getRegistrationsFromJson(String json) throws JsonProcessingException {
         return new ObjectMapper().readValue(json, new TypeReference<>() {
         });

@@ -24,8 +24,14 @@ public class RegistrationValidatorTest {
     }
 
     @Test
-    public void testValidatingRegistrationWithInvalidEmailShouldThrowException()
-    {
+    public void testValidatingRegistrationWithInvalidParticipantShouldThrowException() {
+        Registration incomingRegistration = new Registration();
+        incomingRegistration.setEventId(DEFAULT_UUID);
+        assertThrows(IllegalArgumentException.class, () -> validator.ensureRegistrationIsValidOrThrowException(incomingRegistration));
+    }
+
+    @Test
+    public void testValidatingRegistrationWithInvalidEmailShouldThrowException() {
         Registration incomingRegistration = new Registration();
         incomingRegistration.setEventId(DEFAULT_UUID);
         Participant participant = new Participant("test");
@@ -34,8 +40,7 @@ public class RegistrationValidatorTest {
     }
 
     @Test
-    public void testValidatingRegistrationWithInvalidEventIdShouldThrowException()
-    {
+    public void testValidatingRegistrationWithInvalidEventIdShouldThrowException() {
         Registration incomingRegistration = new Registration();
         Participant participant = new Participant("test@test.com");
         incomingRegistration.setParticipant(participant);
