@@ -83,6 +83,15 @@ class RegistrationServiceMapImplTest {
         service.save(validRegistration());
         assertThrows(ConflictingEntityException.class, () -> service.save(validRegistration()));
     }
+
+    @Test
+    void testFindRegistrationsByEventIdShouldReturnAllRegistrations() throws ConflictingEntityException {
+        Registration incomingRegistration = validRegistration();
+        service.save(incomingRegistration);
+        incomingRegistration.setId(1L);
+        Set<Registration> storedRegistrations = service.findRegistrationsByEventId(incomingRegistration.getEventId().toString());
+        assertTrue(storedRegistrations.contains(incomingRegistration));
+    }
     
     private Registration validRegistration() {
         Registration registration = new Registration();
