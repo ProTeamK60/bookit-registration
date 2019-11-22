@@ -1,9 +1,9 @@
 package se.knowit.bookitregistration.service;
 
 import se.knowit.bookitregistration.model.Registration;
-import se.knowit.bookitregistration.model.RegistrationValidator;
 import se.knowit.bookitregistration.repository.RegistrationRepository;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
+import se.knowit.bookitregistration.validator.RegistrationValidator;
 
 import java.util.Set;
 import java.util.UUID;
