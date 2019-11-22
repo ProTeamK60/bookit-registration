@@ -2,7 +2,6 @@ package se.knowit.bookitregistration.service.map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import se.knowit.bookitregistration.model.Participant;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
@@ -106,4 +105,12 @@ class RegistrationServiceMapImplTest {
         return uuid != null && !uuid.toString().isBlank();
     }
     
+    @Test
+    void testDeleteARegistrationByEmailAndEventIdShouldWork() throws ConflictingEntityException {
+        Registration registration = validRegistration();
+        service.save(registration);
+        assertEquals(1, container.size());
+        service.deleteByEventIdAndEmail(registration.getEventId().toString(), registration.getParticipant().getEmail());
+        assertEquals(0, container.size());
+    }
 }
