@@ -20,7 +20,7 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public Set<Registration> findAll() {
-        return repository.find(Filters.matchAll);
+        return repository.find(Predicates.matchAll);
     }
 
     @Override

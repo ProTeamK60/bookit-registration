@@ -4,8 +4,8 @@ import se.knowit.bookitregistration.model.Registration;
 
 import java.util.function.Predicate;
 
-public class Filters {
+public class Predicates {
 
-    public static final Predicate<Registration> matchAll = r -> true;
+    static final Predicate<Registration> matchAll = r -> true;
 
 }
