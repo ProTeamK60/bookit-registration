@@ -15,7 +15,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static se.knowit.bookitregistration.TestUtil.validRegistration;
+import static se.knowit.bookitregistration.RegistrationTestUtil.validRegistration;
 
 @ExtendWith(MockitoExtension.class)
 class RegistrationServiceImplTest {

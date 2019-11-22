@@ -4,15 +4,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import se.knowit.bookitregistration.model.Participant;
 import se.knowit.bookitregistration.model.Registration;
-import se.knowit.bookitregistration.repository.map.RegistrationRepositoryMapImpl;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static se.knowit.bookitregistration.TestUtil.DEFAULT_UUID;
-import static se.knowit.bookitregistration.TestUtil.validRegistration;
+import static se.knowit.bookitregistration.RegistrationTestUtil.DEFAULT_UUID;
+import static se.knowit.bookitregistration.RegistrationTestUtil.validRegistration;
 
 class RegistrationRepositoryMapImplTest {
 
