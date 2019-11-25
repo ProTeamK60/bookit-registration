@@ -1,64 +1,49 @@
-package se.knowit.bookitregistration.service.map;
+package se.knowit.bookitregistration.repository.map;
 
 import se.knowit.bookitregistration.model.Registration;
-import se.knowit.bookitregistration.model.RegistrationValidator;
-import se.knowit.bookitregistration.service.RegistrationService;
+import se.knowit.bookitregistration.repository.RegistrationRepository;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
-public class RegistrationServiceMapImpl implements RegistrationService {
-    private final Map<Long, Registration> registrationStore;
+import static java.util.stream.Collectors.toSet;
+
+public class RegistrationRepositoryMapImpl implements RegistrationRepository {
+
     private IdentityHandler identityHandler;
-    private RegistrationValidator registrationValidator;
+    private final Map<Long, Registration> registrationStore;
 
-    public RegistrationServiceMapImpl() {
+    public RegistrationRepositoryMapImpl() {
         this(new ConcurrentHashMap<>());
     }
 
-    RegistrationServiceMapImpl(Map<Long, Registration> registrationStore) {
+    public RegistrationRepositoryMapImpl(Map<Long, Registration> registrationStore) {
         this.registrationStore = registrationStore;
         this.identityHandler = new IdentityHandler(this.registrationStore.size());
-        this.registrationValidator = new RegistrationValidator();
     }
 
     @Override
-    public Set<Registration> findAll() {
-        return Set.copyOf(registrationStore.values());
+    public Set<Registration> find(Predicate<Registration> searchFilter) {
+        return registrationStore.values().stream().filter(searchFilter).collect(toSet());
     }
 
     @Override
-    public Registration save(Registration incomingRegistration) throws ConflictingEntityException {
-        Registration validRegistration = registrationValidator.ensureRegistrationIsValidOrThrowException(incomingRegistration);
+    public void delete(Predicate<Registration> searchFilter) {
+        registrationStore.entrySet()
+                .removeIf((Map.Entry<Long, Registration> entry) -> searchFilter.test(entry.getValue()));
+    }
+
+    @Override
+    public Registration save(Registration validRegistration) throws ConflictingEntityException {
         assignRequiredIds(validRegistration);
         persistRegistration(validRegistration);
         return validRegistration;
-    }
-
-    @Override
-    public void delete(String registrationId) {
-        Optional<Registration> registrationToDelete = registrationStore.values()
-                .stream()
-                .filter(r -> r.getRegistrationId().toString().equals(registrationId))
-                .findFirst();
-        registrationToDelete.ifPresent(registration -> registrationStore.remove(registration.getId()));
-    }
-
-    @Override
-    public void deleteByEventIdAndEmail(String eventId, String email) {
-        Set<Registration> registrationsByEventId = findRegistrationsByEventId(eventId);
-        Optional<Registration> registrationToDelete = registrationsByEventId.stream()
-                .filter(r -> r.getParticipant().getEmail().equals(email))
-                .findFirst();
-        registrationToDelete.ifPresent(r -> delete(r.getRegistrationId().toString()));
     }
 
     private void assignRequiredIds(Registration registration) {
@@ -99,7 +84,7 @@ public class RegistrationServiceMapImpl implements RegistrationService {
         }
 
         void assignPersistenceIdIfNotSet(Registration registration) {
-            if (registration.getRegistrationId() == null) {
+            if (registration.getId() == null) {
                 registration.setId(getNextId());
             }
         }
@@ -113,12 +98,5 @@ public class RegistrationServiceMapImpl implements RegistrationService {
         Long getNextId() {
             return idValue.incrementAndGet();
         }
-    }
-
-    @Override
-    public Set<Registration> findRegistrationsByEventId(String eventId) {
-        return findAll().stream()
-                .filter(hasSameEventId(eventId))
-                .collect(Collectors.toSet());
     }
 }

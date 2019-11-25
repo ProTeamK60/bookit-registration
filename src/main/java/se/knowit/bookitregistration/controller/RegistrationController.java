@@ -51,7 +51,7 @@ public class RegistrationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteByRegistrationId(@PathVariable String id) {
-        service.delete(id);
+        service.deleteByRegistrationId(id);
         return ResponseEntity.noContent().build();
     }
 

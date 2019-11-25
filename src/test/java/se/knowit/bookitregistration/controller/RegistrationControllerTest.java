@@ -29,7 +29,8 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -143,7 +144,7 @@ class RegistrationControllerTest {
         mockMvc.perform(
                 delete(PATH + "/" + DEFAULT_REGISTRATION_UUID))
                 .andExpect(status().isNoContent());
-        verify(registrationService, times(1)).delete(DEFAULT_REGISTRATION_UUID.toString());
+        verify(registrationService).deleteByRegistrationId(DEFAULT_REGISTRATION_UUID.toString());
     }
 
     @Test
@@ -152,10 +153,10 @@ class RegistrationControllerTest {
         mockMvc.perform(
                 delete(PATH + "/" + testEmail + "/" + DEFAULT_EVENT_UUID))
                 .andExpect(status().isNoContent());
-        verify(registrationService, times(1))
+        verify(registrationService)
                 .deleteByEventIdAndEmail(DEFAULT_EVENT_UUID.toString(), testEmail);
     }
-    
+
     @Test
     void deleteWithInvalidInputShouldStillReturn_204() throws Exception {
         mockMvc.perform(delete(PATH + "/junk/garbage"))
@@ -163,7 +164,7 @@ class RegistrationControllerTest {
         verify(registrationService)
                 .deleteByEventIdAndEmail("garbage", "junk");
     }
-    
+
     private RegistrationDTO getRegistrationDTOFromJson(String incomingJson) throws JsonProcessingException {
         return new ObjectMapper().readValue(incomingJson, RegistrationDTO.class);
     }
