@@ -13,7 +13,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import static java.util.stream.Collectors.toSet;
-import static java.util.stream.Collectors.toUnmodifiableSet;
 
 public class RegistrationRepositoryMapImpl implements RegistrationRepository {
 
@@ -36,13 +35,8 @@ public class RegistrationRepositoryMapImpl implements RegistrationRepository {
 
     @Override
     public void delete(Predicate<Registration> searchFilter) {
-        Set<Long> idsOfRegistrationsToDelete = registrationStore.values()
-                .stream()
-                .filter(searchFilter)
-                .map(Registration::getId)
-                .collect(toUnmodifiableSet());
-
-        idsOfRegistrationsToDelete.forEach(registrationStore::remove);
+        registrationStore.entrySet()
+                .removeIf((Map.Entry<Long, Registration> entry) -> searchFilter.test(entry.getValue()));
     }
 
     @Override

@@ -1,6 +1,8 @@
-package se.knowit.bookitregistration.model;
+package validator;
 
 import org.junit.jupiter.api.Test;
+import se.knowit.bookitregistration.model.Participant;
+import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.validator.RegistrationValidator;
 
 import java.util.UUID;

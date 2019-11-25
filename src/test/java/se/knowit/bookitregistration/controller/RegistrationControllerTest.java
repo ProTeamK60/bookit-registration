@@ -138,7 +138,8 @@ class RegistrationControllerTest {
         mockMvc.perform(
                 delete(PATH + "/" + testEmail + "/" + DEFAULT_EVENT_UUID))
                 .andExpect(status().isNoContent());
-        verify(registrationService).deleteByEventIdAndEmail(DEFAULT_EVENT_UUID.toString(), testEmail);
+        verify(registrationService)
+                .deleteByEventIdAndEmail(DEFAULT_EVENT_UUID.toString(), testEmail);
     }
 
     @Test

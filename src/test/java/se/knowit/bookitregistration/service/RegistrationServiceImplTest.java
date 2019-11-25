@@ -1,8 +1,8 @@
 package se.knowit.bookitregistration.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.knowit.bookitregistration.model.Participant;
@@ -20,15 +20,11 @@ import static se.knowit.bookitregistration.RegistrationTestUtil.validRegistratio
 @ExtendWith(MockitoExtension.class)
 class RegistrationServiceImplTest {
 
+    @InjectMocks
     private RegistrationServiceImpl service;
 
     @Mock
     private RegistrationRepository repository;
-
-    @BeforeEach
-    void setUp() {
-        this.service = new RegistrationServiceImpl(repository);
-    }
 
     @Test
     void anEmptyServiceShouldReturnAnEmptySetFromFindAll() {
