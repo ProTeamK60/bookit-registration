@@ -23,7 +23,6 @@ public class BookitSpringConfiguration {
 
     @Profile("map")
     @Bean
-    @Autowired
     public RegistrationRepository mapBasedRegistrationRepositoryImpl() {
         return new RegistrationRepositoryMapImpl();
     }
