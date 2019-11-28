@@ -11,6 +11,7 @@ import se.knowit.bookitregistration.repository.RegistrationRepository;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,42 +20,48 @@ import static se.knowit.bookitregistration.RegistrationTestUtil.validRegistratio
 
 @ExtendWith(MockitoExtension.class)
 class RegistrationServiceImplTest {
-
+    
     @InjectMocks
     private RegistrationServiceImpl service;
-
+    
     @Mock
     private RegistrationRepository repository;
-
+    
     @Test
     void anEmptyServiceShouldReturnAnEmptySetFromFindAll() {
         Set<Registration> registrations = service.findAll();
         assertNotNull(registrations);
         assertTrue(registrations.isEmpty());
     }
-
+    
     @Test
     void allAvailableRegistrationsShouldBeReturnedFromFindAll() throws ConflictingEntityException {
         Registration registration = validRegistration();
         when(repository.find(any())).thenReturn(Set.of(registration));
-
+        
         service.save(registration);
         Set<Registration> allRegistrations = service.findAll();
         assertTrue(allRegistrations.contains(registration));
         assertEquals(1, allRegistrations.size());
     }
-
+    
     @Test
-    void deleteRequestShouldRemoveTheRegistration() throws ConflictingEntityException {
+    void deleteRequestShouldRemoveTheRegistration() {
         Registration registration = validRegistration();
-
-        when(repository.save(any())).thenReturn(registration);
-        service.save(registration);
-        verify(repository, times(1)).save(any());
         service.deleteByRegistrationId(registration.getRegistrationId().toString());
-        verify(repository, times(1)).delete(any());
+        verify(repository).delete(notNull());
     }
-
+    
+    @Test
+    void deleteByEmailAndEventIdShouldRemoveRegistration() {
+        Registration registration = validRegistration();
+        UUID eventId = registration.getEventId();
+        String email = registration.getParticipant().getEmail();
+        
+        service.deleteByEventIdAndEmail(eventId.toString(), email);
+        verify(repository).delete(notNull());
+    }
+    
     @Test
     void testSaveAnInvalidRegistrationShouldThrowException() {
         Registration incomingRegistration = validRegistration();
@@ -62,11 +69,25 @@ class RegistrationServiceImplTest {
         incomingRegistration.setParticipant(participant);
         assertThrows(IllegalArgumentException.class, () -> service.save(incomingRegistration));
     }
-
+    
     @Test
     void testSaveADuplicateRegistrationShouldThrowException() throws ConflictingEntityException {
         service.save(validRegistration());
         when(repository.save(validRegistration())).thenThrow(new ConflictingEntityException());
         assertThrows(ConflictingEntityException.class, () -> service.save(validRegistration()));
+    }
+    
+    @Test
+    void testFindByEventId() {
+        Registration registration = validRegistration();
+        String eventId = registration.getEventId().toString();
+        
+        when(repository.find(isNotNull())).thenReturn(Set.of(registration));
+        Set<Registration> registrationsByEventId = service.findRegistrationsByEventId(eventId);
+        verify(repository).find(isNotNull());
+        
+        assertNotNull(registrationsByEventId);
+        assertEquals(1, registrationsByEventId.size());
+        assertTrue(registrationsByEventId.contains(registration));
     }
 }
