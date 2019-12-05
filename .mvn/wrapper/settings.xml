@@ -1,0 +1,11 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <servers>
+        <server>
+            <id>registry-1.docker.io</id>
+            <username>proteamk60</username>
+            <password>{L9Ek2S4IXr8HyQoDmE3dr1F/B6VtSbC1PJ05iNOaYC8=}</password>
+        </server>
+    </servers>
+</settings>
