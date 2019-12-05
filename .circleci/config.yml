@@ -1,0 +1,73 @@
+version: 2.1
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build-test
+      - publish-docker:
+          requires:
+            - build-test
+          filters:
+            branches:
+              only: development
+
+jobs:
+  build-test:
+    docker:
+      - image: circleci/openjdk:13.0.1-jdk-buster-node-browsers-legacy
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - bookit-registration-{{ checksum "pom.xml" }}
+            - bookit-registration
+      - run: mvn dependency:go-offline
+      - run: chmod +x ./mvnw
+      - run:
+          # Plain maven build and test
+          name: Build and test
+          command: |
+            ./mvnw verify -B -P circleci
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: bookit-registration-{{ checksum "pom.xml" }}
+      - persist_to_workspace:
+          root: ~/repo
+          paths:
+            - pom.xml
+            - .mvn
+            - ./mvnw
+            - src
+            - target
+      - store_test_results:
+          path: target/surefire-reports
+
+  publish-docker:
+    docker:
+      - image: circleci/openjdk:13.0.1-jdk-buster-node-browsers-legacy
+    working_directory: ~/repo
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - restore_cache:
+          keys:
+            - bookit-registration-{{ checksum "pom.xml" }}
+            - bookit-registration
+      - run: mvn dependency:go-offline
+      # Ensure it is possible to publish to ProTeamK60's repo on Docker hub
+      - run: cp .mvn/wrapper/settings.xml ~/.m2/settings.xml
+      - run: echo "<settingsSecurity><master>${maven_security_master}</master></settingsSecurity>" > ~/.m2/settings-security.xml
+      - run: chmod +x ./mvnw
+      - run:
+          # Using Google Jib to build Docker image and publish it to Docker registry
+          name: Build and test
+          command: |
+            ./mvnw jib:build -B -P circleci \
+              -Dbuild.number=${CIRCLE_BUILD_NUM} \
+              -Dcommit.hash=${CIRCLE_SHA1} \
+              -Dcircle.workflow.guid=${CIRCLE_WORKFLOW_ID} \
+              -Dbuild.user=${CIRCLE_PROJECT_USERNAME} \
+              -Dbuild.repo=${CIRCLE_PROJECT_REPONAME}
