@@ -213,7 +213,7 @@
 				<version>${dockerfile-maven-version}</version>
 				<executions>
 					<execution>
-						<id>default</id>
+						<id>default-spotify</id>
 						<goals>
 							<goal>build</goal>
 							<goal>push</goal>
