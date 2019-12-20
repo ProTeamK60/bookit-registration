@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.knowit.bookitregistration.dto.ParticipantDTO;
 import se.knowit.bookitregistration.service.ParticipantService;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -64,9 +65,8 @@ class ParticipantControllerTest {
         assertAllParticipantsAreReturned(extractParticipants(jsonData));
     }
     
-    private Set<ParticipantDTO> extractParticipants(String jsonData) throws JsonProcessingException {
-        return new ObjectMapper().readValue(jsonData, new TypeReference<>() {
-        });
+    private Set<ParticipantDTO> extractParticipants(String jsonData) throws IOException {
+        return new ObjectMapper().readValue(jsonData, new TypeReference<Set<ParticipantDTO>>() {});
     }
     
     private void assertAllParticipantsAreReturned(Set<ParticipantDTO> participantDTOS) {
