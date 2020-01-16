@@ -1,6 +1,5 @@
 package se.knowit.bookitregistration.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,7 +23,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static se.knowit.bookitregistration.controller.ParticipantController.BASE_PATH;
 
 @ExtendWith(MockitoExtension.class)
 class ParticipantControllerTest {
@@ -58,7 +56,7 @@ class ParticipantControllerTest {
                         eq(DEFAULT_EVENT_ID.toString())))
                 .thenReturn(Set.of(participant1, participant2));
         
-        String jsonData = mockMvc.perform(get(BASE_PATH + "/event/" + DEFAULT_EVENT_ID.toString()))
+        String jsonData = mockMvc.perform(get(ParticipantController.BASE_PATH + "/event/" + DEFAULT_EVENT_ID.toString()))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
         
@@ -82,7 +80,7 @@ class ParticipantControllerTest {
                         eq(DEFAULT_EVENT_ID.toString())))
                 .thenReturn(Set.of());
         
-        mockMvc.perform(get(BASE_PATH + "/event/" + DEFAULT_EVENT_ID.toString()))
+        mockMvc.perform(get(ParticipantController.BASE_PATH + "/event/" + DEFAULT_EVENT_ID.toString()))
                 .andExpect(status().isNotFound());
     }
 }

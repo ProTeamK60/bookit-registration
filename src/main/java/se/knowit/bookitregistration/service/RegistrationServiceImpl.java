@@ -1,13 +1,17 @@
 package se.knowit.bookitregistration.service;
 
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.PartitionOffset;
+import org.springframework.kafka.annotation.TopicPartition;
 import se.knowit.bookitevent.dto.EventDTO;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.repository.RegistrationRepository;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 import se.knowit.bookitregistration.validator.RegistrationValidator;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 public class RegistrationServiceImpl implements RegistrationService {
@@ -62,9 +66,17 @@ public class RegistrationServiceImpl implements RegistrationService {
         return r -> r.getEventId().equals(UUID.fromString(eventId));
     }
 
-    @KafkaListener(topics = {"events"}, containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = {"events"},
+            containerFactory = "kafkaListenerContainerFactory",
+            topicPartitions = @TopicPartition(
+                    topic = "events",
+                    partitionOffsets = @PartitionOffset(
+                            partition = "0",
+                            initialOffset = "0"
+                    )
+            )
+    )
     public void eventListener(final EventDTO event) {
         existingEventIds.add(event.getEventId());
-        System.out.println("New incoming event " + event);
     }
 }
