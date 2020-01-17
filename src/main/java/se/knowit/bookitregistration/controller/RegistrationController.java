@@ -4,12 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import se.knowit.bookitnotification.dto.NotificationDTO;
-import se.knowit.bookitregistration.dto.ParticipantDTO;
 import se.knowit.bookitregistration.dto.RegistrationDTO;
 import se.knowit.bookitregistration.dto.RegistrationMapper;
 import se.knowit.bookitregistration.model.Registration;
-import se.knowit.bookitregistration.service.KafkaService;
 import se.knowit.bookitregistration.service.RegistrationService;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
@@ -29,12 +26,10 @@ public class RegistrationController {
 
     private final RegistrationMapper mapper;
     private final RegistrationService service;
-    private final KafkaService kafkaService;
 
-    public RegistrationController(RegistrationService service, KafkaService kafkaService) {
+    public RegistrationController(RegistrationService service) {
         this.mapper = new RegistrationMapper();
         this.service = service;
-        this.kafkaService = kafkaService;
     }
 
     @GetMapping({"", "/"})
@@ -73,11 +68,6 @@ public class RegistrationController {
     private RegistrationSaveResult trySave(RegistrationDTO incomingRegistration) {
         try {
             Registration saved = service.save(mapper.fromDTO(incomingRegistration));
-            NotificationDTO notification = new NotificationDTO();
-            notification.setEventId(saved.getEventId().toString());
-            notification.setParticipant(new ParticipantDTO());
-            notification.getParticipant().setEmail(saved.getParticipant().getEmail());
-            kafkaService.sendMessage("registrations", notification);
             return new RegistrationSaveResult(saved.getRegistrationId().toString());
         } catch (ConflictingEntityException conflictingEntityException) {
             return new RegistrationSaveResult(conflictingEntityException, Outcome.CONFLICT);

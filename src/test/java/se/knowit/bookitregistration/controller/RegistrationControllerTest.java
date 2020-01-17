@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.knowit.bookitregistration.dto.RegistrationDTO;
 import se.knowit.bookitregistration.dto.RegistrationMapper;
 import se.knowit.bookitregistration.model.Registration;
-import se.knowit.bookitregistration.service.KafkaService;
 import se.knowit.bookitregistration.service.RegistrationService;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
@@ -27,9 +26,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -43,9 +42,6 @@ class RegistrationControllerTest {
 
     @Mock
     private RegistrationService registrationService;
-
-    @Mock
-    private KafkaService kafkaService;
 
     @InjectMocks
     private RegistrationController registrationController;

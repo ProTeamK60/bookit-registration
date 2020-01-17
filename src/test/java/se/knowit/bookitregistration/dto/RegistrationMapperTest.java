@@ -6,6 +6,8 @@ import se.knowit.bookitregistration.model.Registration;
 
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class RegistrationMapperTest {
     
     private RegistrationMapper registrationMapper;

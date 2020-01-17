@@ -7,7 +7,10 @@ import org.springframework.context.annotation.Profile;
 import se.knowit.bookitregistration.dto.RegistrationMapper;
 import se.knowit.bookitregistration.repository.RegistrationRepository;
 import se.knowit.bookitregistration.repository.map.RegistrationRepositoryMapImpl;
-import se.knowit.bookitregistration.service.*;
+import se.knowit.bookitregistration.service.ParticipantService;
+import se.knowit.bookitregistration.service.ParticipantServiceImpl;
+import se.knowit.bookitregistration.service.RegistrationService;
+import se.knowit.bookitregistration.service.RegistrationServiceImpl;
 
 @Configuration
 public class BookitSpringConfiguration {
@@ -29,11 +32,4 @@ public class BookitSpringConfiguration {
     public ParticipantService participantServiceImpl(final RegistrationService registrationService) {
         return new ParticipantServiceImpl(registrationService, new RegistrationMapper());
     }
-
-    @Bean
-    public KafkaService kafkaServiceImpl() {
-        return new KafkaServiceImpl();
-    }
-
-
 }
