@@ -28,8 +28,8 @@ public class RegistrationController {
     private final RegistrationService service;
 
     public RegistrationController(RegistrationService service) {
-        this.service = service;
         this.mapper = new RegistrationMapper();
+        this.service = service;
     }
 
     @GetMapping({"", "/"})

@@ -5,6 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import se.knowit.bookitevent.dto.EventDTO;
+import se.knowit.bookitregistration.RegistrationTestUtil;
 import se.knowit.bookitregistration.model.Participant;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.repository.RegistrationRepository;
@@ -38,13 +40,27 @@ class RegistrationServiceImplTest {
     void allAvailableRegistrationsShouldBeReturnedFromFindAll() throws ConflictingEntityException {
         Registration registration = validRegistration();
         when(repository.find(any())).thenReturn(Set.of(registration));
-        
+        EventDTO eventDTO = eventDTO();
+        service.eventListener(eventDTO);
+
         service.save(registration);
         Set<Registration> allRegistrations = service.findAll();
         assertTrue(allRegistrations.contains(registration));
         assertEquals(1, allRegistrations.size());
     }
-    
+
+    private EventDTO eventDTO() {
+        EventDTO eventDTO = new EventDTO();
+        eventDTO.setName("Sierra Nevada");
+        eventDTO.setLocation("Spain");
+        eventDTO.setOrganizer("Albin");
+        eventDTO.setEventId(RegistrationTestUtil.DEFAULT_UUID.toString());
+        eventDTO.setEventStart(9L);
+        eventDTO.setEventEnd(10L);
+        eventDTO.setDeadlineRVSP(8L);
+        return eventDTO;
+    }
+
     @Test
     void deleteRequestShouldRemoveTheRegistration() {
         Registration registration = validRegistration();
@@ -72,6 +88,9 @@ class RegistrationServiceImplTest {
     
     @Test
     void testSaveADuplicateRegistrationShouldThrowException() throws ConflictingEntityException {
+        final EventDTO eventDTO = eventDTO();
+        service.eventListener(eventDTO);
+
         service.save(validRegistration());
         when(repository.save(validRegistration())).thenThrow(new ConflictingEntityException());
         assertThrows(ConflictingEntityException.class, () -> service.save(validRegistration()));

@@ -1,10 +1,15 @@
 package se.knowit.bookitregistration.service;
 
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.PartitionOffset;
+import org.springframework.kafka.annotation.TopicPartition;
+import se.knowit.bookitevent.dto.EventDTO;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.repository.RegistrationRepository;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 import se.knowit.bookitregistration.validator.RegistrationValidator;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -12,6 +17,7 @@ import java.util.function.Predicate;
 public class RegistrationServiceImpl implements RegistrationService {
     private final RegistrationRepository repository;
     private final RegistrationValidator registrationValidator;
+    private final Set<String> existingEventIds = new HashSet<>();
     
     public RegistrationServiceImpl(RegistrationRepository repository) {
         this.repository = repository;
@@ -26,6 +32,10 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public Registration save(Registration incomingRegistration) throws ConflictingEntityException {
         Registration validRegistration = registrationValidator.ensureRegistrationIsValidOrThrowException(incomingRegistration);
+        if(!existingEventIds.contains(validRegistration.getEventId().toString())) {
+            throw new IllegalArgumentException("The event you try to register for, does not exist in the backend!");
+        }
+
         return repository.save(validRegistration);
     }
     
@@ -54,5 +64,19 @@ public class RegistrationServiceImpl implements RegistrationService {
     
     private Predicate<Registration> eventIdMatcher(String eventId) {
         return r -> r.getEventId().equals(UUID.fromString(eventId));
+    }
+
+    @KafkaListener(topics = {"events"},
+            containerFactory = "kafkaListenerContainerFactory",
+            topicPartitions = @TopicPartition(
+                    topic = "events",
+                    partitionOffsets = @PartitionOffset(
+                            partition = "0",
+                            initialOffset = "0"
+                    )
+            )
+    )
+    public void eventListener(final EventDTO event) {
+        existingEventIds.add(event.getEventId());
     }
 }
