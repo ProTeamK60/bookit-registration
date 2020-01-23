@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.knowit.bookitregistration.dto.RegistrationDTO;
 import se.knowit.bookitregistration.dto.RegistrationMapper;
+import se.knowit.bookitregistration.kafka.producer.KafkaProducerService;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.RegistrationService;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
@@ -42,6 +43,9 @@ class RegistrationControllerTest {
 
     @Mock
     private RegistrationService registrationService;
+
+    @Mock
+    private KafkaProducerService<String,RegistrationDTO> registrationKafkaProducerService;
 
     @InjectMocks
     private RegistrationController registrationController;

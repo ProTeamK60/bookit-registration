@@ -1,4 +1,4 @@
-package se.knowit.bookitevent.dto;
+package se.knowit.bookitregistration.dto.event;
 
 import lombok.Data;
 
