@@ -12,7 +12,6 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import se.knowit.bookitregistration.dto.RegistrationDTO;
 import se.knowit.bookitregistration.kafka.producer.KafkaProducerService;
 import se.knowit.bookitregistration.kafka.producer.RegistrationKafkaProducerServiceImpl;
-import se.knowit.bookitregistration.repository.EventRepository;
 import se.knowit.bookitregistration.servicediscovery.DiscoveryService;
 import se.knowit.bookitregistration.servicediscovery.DiscoveryServiceResult;
 
@@ -35,7 +34,7 @@ public class KafkaProducerConfiguration {
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, result.getAddresses());
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        return new DefaultKafkaProducerFactory(configProps);
+        return new DefaultKafkaProducerFactory<>(configProps);
     }
 
     @Bean

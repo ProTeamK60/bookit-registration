@@ -37,7 +37,7 @@ public class KafkaConsumerConfiguration {
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "event-consumer");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer(EventDTO.class, false));
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(EventDTO.class, false));
     }
 
     @Bean

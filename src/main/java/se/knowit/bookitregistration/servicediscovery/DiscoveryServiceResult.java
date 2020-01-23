@@ -12,7 +12,7 @@ public class DiscoveryServiceResult {
     private List<Instance> instances;
 
     public DiscoveryServiceResult() {
-        this.instances = new ArrayList();
+        this.instances = new ArrayList<>();
     }
 
     public void addInstance(Instance instance) {
@@ -20,6 +20,6 @@ public class DiscoveryServiceResult {
     }
 
     public String getAddresses() {
-        return instances.stream().map(instance -> instance.getAddress()).collect(Collectors.joining(","));
+        return instances.stream().map(Instance::getAddress).collect(Collectors.joining(","));
     }
 }

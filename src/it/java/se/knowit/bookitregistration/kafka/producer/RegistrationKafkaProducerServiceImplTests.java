@@ -35,7 +35,8 @@ public class RegistrationKafkaProducerServiceImplTests {
 
     @Autowired
     private KafkaProducerService<String, RegistrationDTO> producerService;
-
+    
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private EmbeddedKafkaBroker kafkaBroker;
 
@@ -54,7 +55,7 @@ public class RegistrationKafkaProducerServiceImplTests {
         consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        ConsumerFactory<String, RegistrationDTO> consumerFactory = new DefaultKafkaConsumerFactory(consumerProps, new StringDeserializer(), new JsonDeserializer(RegistrationDTO.class, false));
+        ConsumerFactory<String, RegistrationDTO> consumerFactory = new DefaultKafkaConsumerFactory<>(consumerProps, new StringDeserializer(), new JsonDeserializer<>(RegistrationDTO.class, false));
         return consumerFactory.createConsumer();
     }
 
