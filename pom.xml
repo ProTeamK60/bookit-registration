@@ -24,6 +24,7 @@
 		<build.user>local-build</build.user>
 		<build.repo>local-build</build.repo>
 		<circle.workflow.guid>local-build</circle.workflow.guid>
+		<active.profile>dev</active.profile>
 	</properties>
 
 	<dependencies>
@@ -97,15 +98,32 @@
 			<version>2.2.7.RELEASE</version>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka-test</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>2.9.9</version>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-servicediscovery</artifactId>
+			<version>1.11.693</version>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-core</artifactId>
+			<version>1.11.693</version>
 		</dependency>
 	</dependencies>
 
 	<profiles>
 		<profile>
 			<id>circleci</id>
+			<properties>
+				<activatedProperties>${active.profile}</activatedProperties>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
@@ -127,6 +145,7 @@
 									<jvmFlag>-Dbuild.user=${build.user}</jvmFlag>
 									<jvmFlag>-Dbuild.repo=${build.repo}</jvmFlag>
 									<jvmFlag>-Dcircle.workflow.guid=${circle.workflow.guid}</jvmFlag>
+									<jvmFlag>-Dspring.profiles.active=${active.profile}</jvmFlag>
 								</jvmFlags>
 								<ports>
 									<port>${tomcat.port}</port>
@@ -184,8 +203,16 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<activatedProperties>dev</activatedProperties>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
 	</profiles>
-
 	<build>
 		<plugins>
 			<plugin>

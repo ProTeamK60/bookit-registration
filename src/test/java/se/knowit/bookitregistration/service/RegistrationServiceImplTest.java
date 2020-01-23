@@ -5,13 +5,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.knowit.bookitevent.dto.EventDTO;
 import se.knowit.bookitregistration.RegistrationTestUtil;
 import se.knowit.bookitregistration.model.Participant;
 import se.knowit.bookitregistration.model.Registration;
+import se.knowit.bookitregistration.model.event.Event;
+import se.knowit.bookitregistration.repository.EventRepository;
 import se.knowit.bookitregistration.repository.RegistrationRepository;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
+import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,8 +30,11 @@ class RegistrationServiceImplTest {
     private RegistrationServiceImpl service;
     
     @Mock
-    private RegistrationRepository repository;
-    
+    private RegistrationRepository registrationRepository;
+
+    @Mock
+    private EventRepository eventRepository;
+
     @Test
     void anEmptyServiceShouldReturnAnEmptySetFromFindAll() {
         Set<Registration> registrations = service.findAll();
@@ -39,9 +45,9 @@ class RegistrationServiceImplTest {
     @Test
     void allAvailableRegistrationsShouldBeReturnedFromFindAll() throws ConflictingEntityException {
         Registration registration = validRegistration();
-        when(repository.find(any())).thenReturn(Set.of(registration));
-        EventDTO eventDTO = eventDTO();
-        service.eventListener(eventDTO);
+        Event event = event();
+        when(registrationRepository.find(any())).thenReturn(Set.of(registration));
+        when(eventRepository.findByEventId(any())).thenReturn(Optional.of(event));
 
         service.save(registration);
         Set<Registration> allRegistrations = service.findAll();
@@ -49,23 +55,23 @@ class RegistrationServiceImplTest {
         assertEquals(1, allRegistrations.size());
     }
 
-    private EventDTO eventDTO() {
-        EventDTO eventDTO = new EventDTO();
-        eventDTO.setName("Sierra Nevada");
-        eventDTO.setLocation("Spain");
-        eventDTO.setOrganizer("Albin");
-        eventDTO.setEventId(RegistrationTestUtil.DEFAULT_UUID.toString());
-        eventDTO.setEventStart(9L);
-        eventDTO.setEventEnd(10L);
-        eventDTO.setDeadlineRVSP(8L);
-        return eventDTO;
+    private Event event() {
+        Event event = new Event();
+        event.setName("Sierra Nevada");
+        event.setLocation("Spain");
+        event.setOrganizer("Albin");
+        event.setEventId(RegistrationTestUtil.DEFAULT_UUID);
+        event.setEventStart(Instant.ofEpochMilli(9L));
+        event.setEventEnd(Instant.ofEpochMilli(10L));
+        event.setDeadlineRVSP(Instant.ofEpochMilli(8L));
+        return event;
     }
 
     @Test
     void deleteRequestShouldRemoveTheRegistration() {
         Registration registration = validRegistration();
         service.deleteByRegistrationId(registration.getRegistrationId().toString());
-        verify(repository).delete(notNull());
+        verify(registrationRepository).delete(notNull());
     }
     
     @Test
@@ -75,7 +81,7 @@ class RegistrationServiceImplTest {
         String email = registration.getParticipant().getEmail();
         
         service.deleteByEventIdAndEmail(eventId.toString(), email);
-        verify(repository).delete(notNull());
+        verify(registrationRepository).delete(notNull());
     }
     
     @Test
@@ -88,11 +94,11 @@ class RegistrationServiceImplTest {
     
     @Test
     void testSaveADuplicateRegistrationShouldThrowException() throws ConflictingEntityException {
-        final EventDTO eventDTO = eventDTO();
-        service.eventListener(eventDTO);
+        final Event event = event();
+        when(eventRepository.findByEventId(any())).thenReturn(Optional.of(event));
 
         service.save(validRegistration());
-        when(repository.save(validRegistration())).thenThrow(new ConflictingEntityException());
+        when(registrationRepository.save(validRegistration())).thenThrow(new ConflictingEntityException());
         assertThrows(ConflictingEntityException.class, () -> service.save(validRegistration()));
     }
     
@@ -101,9 +107,9 @@ class RegistrationServiceImplTest {
         Registration registration = validRegistration();
         String eventId = registration.getEventId().toString();
         
-        when(repository.find(isNotNull())).thenReturn(Set.of(registration));
+        when(registrationRepository.find(isNotNull())).thenReturn(Set.of(registration));
         Set<Registration> registrationsByEventId = service.findRegistrationsByEventId(eventId);
-        verify(repository).find(isNotNull());
+        verify(registrationRepository).find(isNotNull());
         
         assertNotNull(registrationsByEventId);
         assertEquals(1, registrationsByEventId.size());
