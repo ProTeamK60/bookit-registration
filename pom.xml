@@ -132,7 +132,7 @@
 						<version>1.7.0</version>
 						<configuration>
 							<from>
-								<image>registry://docker.io/proteamk60/aml-eventjdk:0.0.1-SNAPSHOT</image>
+								<image>registry://docker.io/proteamk60/aml-eventjdk:0.0.2-SNAPSHOT</image>
 							</from>
 							<to>
 								<image>docker.io/proteamk60/${project.artifactId}:${project.version}-b${build.number}
