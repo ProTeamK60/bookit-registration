@@ -70,5 +70,5 @@ jobs:
               -Dcommit.hash=${CIRCLE_SHA1} \
               -Dcircle.workflow.guid=${CIRCLE_WORKFLOW_ID} \
               -Dbuild.user=${CIRCLE_PROJECT_USERNAME} \
-              -Dbuild.repo=${CIRCLE_PROJECT_REPONAME}
+              -Dbuild.repo=${CIRCLE_PROJECT_REPONAME} \
               -Dactive.profile=prod
