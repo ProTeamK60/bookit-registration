@@ -14,7 +14,7 @@ import se.knowit.bookitregistration.servicediscovery.DiscoveryService;
 @Configuration
 public class ProdConfiguration {
 
-    @Value("aws.discovery.region")
+    @Value("${aws.discovery.region}")
     private String awsRegion;
 
     @Bean
