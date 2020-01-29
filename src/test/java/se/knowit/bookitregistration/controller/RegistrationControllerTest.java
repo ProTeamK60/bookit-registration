@@ -1,7 +1,6 @@
 package se.knowit.bookitregistration.controller;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,10 +16,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import se.knowit.bookitregistration.dto.RegistrationDTO;
 import se.knowit.bookitregistration.dto.RegistrationMapper;
+import se.knowit.bookitregistration.kafka.producer.KafkaProducerService;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.RegistrationService;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +43,9 @@ class RegistrationControllerTest {
 
     @Mock
     private RegistrationService registrationService;
+
+    @Mock
+    private KafkaProducerService<String,RegistrationDTO> registrationKafkaProducerService;
 
     @InjectMocks
     private RegistrationController registrationController;
@@ -165,12 +169,12 @@ class RegistrationControllerTest {
                 .deleteByEventIdAndEmail("garbage", "junk");
     }
 
-    private RegistrationDTO getRegistrationDTOFromJson(String incomingJson) throws JsonProcessingException {
+    private RegistrationDTO getRegistrationDTOFromJson(String incomingJson) throws IOException {
         return new ObjectMapper().readValue(incomingJson, RegistrationDTO.class);
     }
 
-    private List<RegistrationDTO> getRegistrationsFromJson(String json) throws JsonProcessingException {
-        return new ObjectMapper().readValue(json, new TypeReference<>() {
+    private List<RegistrationDTO> getRegistrationsFromJson(String json) throws IOException {
+        return new ObjectMapper().readValue(json, new TypeReference<List<RegistrationDTO>>() {
         });
     }
 }

@@ -5,12 +5,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import se.knowit.bookitregistration.model.Participant;
-import se.knowit.bookitregistration.model.Registration;
-import se.knowit.bookitregistration.service.RegistrationService;
-
-import java.util.UUID;
-
 @SpringBootApplication
 public class BookitRegistrationApplication {
 
@@ -19,8 +13,9 @@ public class BookitRegistrationApplication {
     }
 
     @Bean
-    CommandLineRunner init(RegistrationService service) {
+    CommandLineRunner init() {
         return args -> {
+
             Registration registration = new Registration();
             registration.setEventId(UUID.randomUUID());
             Participant participant = new Participant();

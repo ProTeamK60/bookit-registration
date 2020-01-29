@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class ParticipantDTO {
-	
+
 	private String email;
 	private List<AnswerDTO> answers;
     

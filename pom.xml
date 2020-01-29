@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.2.1.RELEASE</version>
+		<version>2.2.2.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>se.knowit</groupId>
@@ -17,13 +17,14 @@
 	<properties>
 		<java.version>13</java.version>
 		<dockerfile-maven-version>1.4.13</dockerfile-maven-version>
-		<spring-cloud-sleuth.version>2.1.0.RELEASE</spring-cloud-sleuth.version>
+		<spring-cloud-sleuth.version>2.2.0.RELEASE</spring-cloud-sleuth.version>
 		<tomcat.port>8081</tomcat.port>
 		<build.number>000</build.number>
 		<commit.hash>local-build</commit.hash>
 		<build.user>local-build</build.user>
 		<build.repo>local-build</build.repo>
 		<circle.workflow.guid>local-build</circle.workflow.guid>
+		<active.profile>dev</active.profile>
 	</properties>
 
 	<dependencies>
@@ -91,11 +92,38 @@
 			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+			<version>2.2.7.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.9.10.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-servicediscovery</artifactId>
+			<version>1.11.693</version>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-core</artifactId>
+			<version>1.11.693</version>
+		</dependency>
 	</dependencies>
 
 	<profiles>
 		<profile>
 			<id>circleci</id>
+			<properties>
+				<activatedProperties>${active.profile}</activatedProperties>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
@@ -104,7 +132,7 @@
 						<version>1.7.0</version>
 						<configuration>
 							<from>
-								<image>registry://docker.io/proteamk60/aml-eventjdk:0.0.1-SNAPSHOT</image>
+								<image>registry://docker.io/proteamk60/aml-eventjdk:0.0.2-SNAPSHOT</image>
 							</from>
 							<to>
 								<image>docker.io/proteamk60/${project.artifactId}:${project.version}-b${build.number}
@@ -117,6 +145,7 @@
 									<jvmFlag>-Dbuild.user=${build.user}</jvmFlag>
 									<jvmFlag>-Dbuild.repo=${build.repo}</jvmFlag>
 									<jvmFlag>-Dcircle.workflow.guid=${circle.workflow.guid}</jvmFlag>
+									<jvmFlag>-Dspring.profiles.active=${active.profile}</jvmFlag>
 								</jvmFlags>
 								<ports>
 									<port>${tomcat.port}</port>
@@ -174,8 +203,16 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<activatedProperties>dev</activatedProperties>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
 	</profiles>
-
 	<build>
 		<plugins>
 			<plugin>
