@@ -9,6 +9,8 @@ import se.knowit.bookitregistration.model.Participant;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.RegistrationService;
 
+import java.util.UUID;
+
 @SpringBootApplication
 public class BookitRegistrationApplication {
 
