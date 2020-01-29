@@ -65,7 +65,8 @@ class RegistrationServiceImplTest {
     @Test
     void testSaveAnInvalidRegistrationShouldThrowException() {
         Registration incomingRegistration = validRegistration();
-        Participant participant = new Participant("test");
+        Participant participant = new Participant();
+        participant.setEmail("test");
         incomingRegistration.setParticipant(participant);
         assertThrows(IllegalArgumentException.class, () -> service.save(incomingRegistration));
     }

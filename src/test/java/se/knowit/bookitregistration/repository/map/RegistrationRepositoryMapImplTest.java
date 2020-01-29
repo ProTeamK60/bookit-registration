@@ -39,7 +39,8 @@ class RegistrationRepositoryMapImplTest {
         repo.save(validRegistration());
         Registration incomingRegistration = new Registration();
         incomingRegistration.setEventId(DEFAULT_UUID);
-        Participant participant = new Participant("test@test.com");
+        Participant participant = new Participant();
+        participant.setEmail("test@test.com");
         incomingRegistration.setParticipant(participant);
         Registration savedRegistration = repo.save(incomingRegistration);
         assertEquals(2L, savedRegistration.getId());

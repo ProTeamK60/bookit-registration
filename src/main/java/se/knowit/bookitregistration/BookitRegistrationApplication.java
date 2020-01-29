@@ -23,13 +23,15 @@ public class BookitRegistrationApplication {
         return args -> {
             Registration registration = new Registration();
             registration.setEventId(UUID.randomUUID());
-            Participant participant = new Participant("ulf.lundell@knowit.se");
+            Participant participant = new Participant();
+            participant.setEmail("ulf.lundell@knowit.se");
             registration.setParticipant(participant);
             service.save(registration);
 
             Registration registration2 = new Registration();
             registration2.setEventId(UUID.randomUUID());
-            participant = new Participant("lars.bandage@knowit.se");
+            participant = new Participant();
+            participant.setEmail("lars.bandage@knowit.se");
             registration2.setParticipant(participant);
             service.save(registration2);
 
