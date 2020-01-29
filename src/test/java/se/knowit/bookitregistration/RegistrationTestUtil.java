@@ -12,7 +12,8 @@ public class RegistrationTestUtil {
         Registration registration = new Registration();
         registration.setEventId(DEFAULT_UUID);
         registration.setRegistrationId(DEFAULT_UUID);
-        Participant participant = new Participant("valid@email.com");
+        Participant participant = new Participant();
+        participant.setEmail("valid@email.com");
         registration.setParticipant(participant);
         return registration;
     }

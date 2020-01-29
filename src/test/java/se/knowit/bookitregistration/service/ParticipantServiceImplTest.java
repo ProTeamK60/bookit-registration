@@ -33,11 +33,13 @@ class ParticipantServiceImplTest {
     
     @BeforeEach
     void setUp() {
-        Participant participant1 = new Participant("test1@test.com");
+        Participant participant1 = new Participant();
+        participant1.setEmail("test1@test.com");
         firstParticipant = new ParticipantDTO();
         firstParticipant.setEmail(participant1.getEmail());
         
-        Participant participant2 = new Participant("test2@test.com");
+        Participant participant2 = new Participant();
+        participant2.setEmail("test2@test.com");
         secondParticipant = new ParticipantDTO();
         secondParticipant.setEmail(participant2.getEmail());
         
