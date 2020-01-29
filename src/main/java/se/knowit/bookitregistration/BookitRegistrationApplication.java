@@ -5,6 +5,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import se.knowit.bookitregistration.model.Participant;
+import se.knowit.bookitregistration.model.Registration;
+import se.knowit.bookitregistration.service.RegistrationService;
+
 @SpringBootApplication
 public class BookitRegistrationApplication {
 
