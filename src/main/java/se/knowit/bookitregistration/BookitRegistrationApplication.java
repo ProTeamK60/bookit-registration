@@ -19,7 +19,7 @@ public class BookitRegistrationApplication {
     }
 
     @Bean
-    CommandLineRunner init() {
+    CommandLineRunner init(RegistrationService service) {
         return args -> {
 
             Registration registration = new Registration();
