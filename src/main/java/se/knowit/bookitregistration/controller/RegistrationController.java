@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import se.knowit.bookitregistration.dto.RegistrationDTO;
 import se.knowit.bookitregistration.dto.RegistrationMapper;
+import se.knowit.bookitregistration.kafka.producer.KafkaProducerService;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.RegistrationService;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
@@ -26,10 +27,12 @@ public class RegistrationController {
 
     private final RegistrationMapper mapper;
     private final RegistrationService service;
+    private final KafkaProducerService<String, RegistrationDTO> registrationProducer;
 
-    public RegistrationController(RegistrationService service) {
-        this.service = service;
+    public RegistrationController(RegistrationService service, KafkaProducerService<String,RegistrationDTO> registrationProducer) {
         this.mapper = new RegistrationMapper();
+        this.service = service;
+        this.registrationProducer = registrationProducer;
     }
 
     @GetMapping({"", "/"})
@@ -68,6 +71,8 @@ public class RegistrationController {
     private RegistrationSaveResult trySave(RegistrationDTO incomingRegistration) {
         try {
             Registration saved = service.save(mapper.fromDTO(incomingRegistration));
+            RegistrationDTO savedDto = mapper.toDTO(saved);
+            registrationProducer.sendMessage("registrations", savedDto.getRegistrationId(), savedDto);
             return new RegistrationSaveResult(saved.getRegistrationId().toString());
         } catch (ConflictingEntityException conflictingEntityException) {
             return new RegistrationSaveResult(conflictingEntityException, Outcome.CONFLICT);

@@ -24,6 +24,7 @@ public class BookitRegistrationApplication {
         return args -> {
             String profile = env.getProperty("spring.profiles.active");
             if (!profile.equalsIgnoreCase("prod")) {
+
               Registration registration = new Registration();
               registration.setEventId(UUID.randomUUID());
               Participant participant = new Participant();

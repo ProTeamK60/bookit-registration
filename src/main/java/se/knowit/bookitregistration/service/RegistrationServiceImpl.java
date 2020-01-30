@@ -1,6 +1,7 @@
 package se.knowit.bookitregistration.service;
 
 import se.knowit.bookitregistration.model.Registration;
+import se.knowit.bookitregistration.repository.EventRepository;
 import se.knowit.bookitregistration.repository.RegistrationRepository;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
 import se.knowit.bookitregistration.validator.RegistrationValidator;
@@ -10,28 +11,32 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 public class RegistrationServiceImpl implements RegistrationService {
-    private final RegistrationRepository repository;
+    private final RegistrationRepository registrationRepository;
+    private final EventRepository eventRepository;
     private final RegistrationValidator registrationValidator;
     
-    public RegistrationServiceImpl(RegistrationRepository repository) {
-        this.repository = repository;
+    public RegistrationServiceImpl(RegistrationRepository registrationRepository, EventRepository eventRepository) {
+        this.registrationRepository = registrationRepository;
+        this.eventRepository = eventRepository;
         this.registrationValidator = new RegistrationValidator();
     }
     
     @Override
     public Set<Registration> findAll() {
-        return repository.find(Predicates.matchAll);
+        return registrationRepository.find(Predicates.matchAll);
     }
     
     @Override
     public Registration save(Registration incomingRegistration) throws ConflictingEntityException {
         Registration validRegistration = registrationValidator.ensureRegistrationIsValidOrThrowException(incomingRegistration);
-        return repository.save(validRegistration);
+        eventRepository.findByEventId(validRegistration.getEventId())
+                .orElseThrow(() -> new IllegalArgumentException("The event you try to register for, does not exist in the backend!"));
+        return registrationRepository.save(validRegistration);
     }
     
     @Override
     public void deleteByRegistrationId(String registrationId) {
-        repository.delete(registrationIdMatcher(registrationId));
+        registrationRepository.delete(registrationIdMatcher(registrationId));
     }
     
     private Predicate<Registration> registrationIdMatcher(String registrationId) {
@@ -40,7 +45,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     
     @Override
     public void deleteByEventIdAndEmail(String eventId, String email) {
-        repository.delete(eventIdAndEmailMatcher(eventId, email));
+        registrationRepository.delete(eventIdAndEmailMatcher(eventId, email));
     }
     
     private Predicate<Registration> eventIdAndEmailMatcher(String eventId, String email) {
@@ -49,10 +54,11 @@ public class RegistrationServiceImpl implements RegistrationService {
     
     @Override
     public Set<Registration> findRegistrationsByEventId(String eventId) {
-        return repository.find(eventIdMatcher(eventId));
+        return registrationRepository.find(eventIdMatcher(eventId));
     }
     
     private Predicate<Registration> eventIdMatcher(String eventId) {
         return r -> r.getEventId().equals(UUID.fromString(eventId));
     }
+
 }
