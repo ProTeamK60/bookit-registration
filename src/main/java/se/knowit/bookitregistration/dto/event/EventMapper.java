@@ -1,8 +1,10 @@
 package se.knowit.bookitregistration.dto.event;
 
+import se.knowit.bookitregistration.model.Option;
 import se.knowit.bookitregistration.model.event.Event;
 
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class EventMapper {
     private TimeSupport timeSupport;
@@ -27,6 +29,9 @@ public class EventMapper {
         event.setEventStart(timeSupport.getInstantFromEpochMilli(dto.getEventStart()));
         event.setEventEnd(timeSupport.getInstantFromEpochMilli(dto.getEventEnd()));
         event.setDeadlineRVSP(timeSupport.getInstantFromEpochMilli(dto.getDeadlineRVSP()));
+        if (null != dto.getOptions()) {
+          event.setOptions(dto.getOptions().stream().map(e -> {return new Option(event.getId(), e.getOptionId(), e.getOptionType(), e.getTitle(), e.getQueryString());}).collect(Collectors.toList()));
+        }
         return event;
     }
 
@@ -42,6 +47,9 @@ public class EventMapper {
         dto.setEventStart(timeSupport.getEpochMilliFromInstant(event.getEventStart()));
         dto.setEventEnd(timeSupport.getEpochMilliFromInstant(event.getEventEnd()));
         dto.setDeadlineRVSP(timeSupport.getEpochMilliFromInstant(event.getDeadlineRVSP()));
+        if (null != event.getOptions()) {
+          dto.setOptions(event.getOptions().stream().map(e -> {return new OptionDTO(e.getOptionId(), e.getOptionType(), e.getTitle(), e.getQueryString());}).collect(Collectors.toList()));
+        }
         return dto;
     }
 
