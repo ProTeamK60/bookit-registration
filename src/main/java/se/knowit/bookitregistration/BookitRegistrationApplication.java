@@ -4,13 +4,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.env.Environment;
-
-import se.knowit.bookitregistration.model.Participant;
-import se.knowit.bookitregistration.model.Registration;
-import se.knowit.bookitregistration.service.RegistrationService;
-
-import java.util.UUID;
 
 @SpringBootApplication
 public class BookitRegistrationApplication {
@@ -20,25 +13,9 @@ public class BookitRegistrationApplication {
     }
 
     @Bean
-    CommandLineRunner init(RegistrationService service, Environment env) {
+    CommandLineRunner init() {
         return args -> {
-            String profile = env.getProperty("spring.profiles.active");
-            if (!profile.equalsIgnoreCase("prod")) {
 
-              Registration registration = new Registration();
-              registration.setEventId(UUID.randomUUID());
-              Participant participant = new Participant();
-              participant.setEmail("ulf.lundell@knowit.se");
-              registration.setParticipant(participant);
-              service.save(registration);
-  
-              Registration registration2 = new Registration();
-              registration2.setEventId(UUID.randomUUID());
-              participant = new Participant();
-              participant.setEmail("lars.bandage@knowit.se");
-              registration2.setParticipant(participant);
-              service.save(registration2);
-            }
             //Obligatorisk ASCII-art
             System.out.println(
                     " (                                            )              \n" +
@@ -52,7 +29,6 @@ public class BookitRegistrationApplication {
                             "                                                             \n" +
                             "\n");
         };
-
 
     }
 }
