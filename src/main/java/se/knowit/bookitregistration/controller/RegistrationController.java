@@ -10,6 +10,7 @@ import se.knowit.bookitregistration.kafka.producer.KafkaProducerService;
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.RegistrationService;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
+import se.knowit.bookitregistration.service.exception.MaxNumberOfRegistrationExceededException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -78,6 +79,8 @@ public class RegistrationController {
             return new RegistrationSaveResult(conflictingEntityException, Outcome.CONFLICT);
         } catch (IllegalArgumentException | NullPointerException e) {
             return new RegistrationSaveResult(e, Outcome.FAILED);
+        } catch (MaxNumberOfRegistrationExceededException mn) {
+          return new RegistrationSaveResult(mn, Outcome.MAX_LIMIT_REACHED);
         }
     }
 
@@ -86,6 +89,8 @@ public class RegistrationController {
             return ResponseEntity.created(getUri(result.registrationId)).build();
         } else if (result.outcome == Outcome.CONFLICT) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(result.throwable.getMessage());
+        } else if (result.outcome == Outcome.MAX_LIMIT_REACHED) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(result.throwable.getMessage());
         } else {
             StringWriter stringWriter = new StringWriter();
             result.throwable.printStackTrace(new PrintWriter(stringWriter));
@@ -117,6 +122,7 @@ public class RegistrationController {
     private enum Outcome {
         CREATED,
         CONFLICT,
-        FAILED
+        FAILED,
+        MAX_LIMIT_REACHED
     }
 }

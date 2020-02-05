@@ -2,6 +2,7 @@ package se.knowit.bookitregistration.service;
 
 import se.knowit.bookitregistration.model.Registration;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
+import se.knowit.bookitregistration.service.exception.MaxNumberOfRegistrationExceededException;
 
 import java.util.Set;
 
@@ -11,7 +12,7 @@ public interface RegistrationService {
     
     Set<Registration> findRegistrationsByEventId(String eventId);
     
-    Registration save(Registration object) throws ConflictingEntityException;
+    Registration save(Registration object) throws ConflictingEntityException, MaxNumberOfRegistrationExceededException;
 
     void deleteByRegistrationId(String id);
 

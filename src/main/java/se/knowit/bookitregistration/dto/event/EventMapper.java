@@ -23,6 +23,7 @@ public class EventMapper {
         event.setDescription(dto.getDescription());
         event.setLocation(dto.getLocation());
         event.setOrganizer(dto.getOrganizer());
+        event.setMaxNumberOfApplicants(dto.getMaxNumberOfApplicants());
         if (notNullOrBlank(dto.getEventId())) {
             event.setEventId(UUID.fromString(dto.getEventId()));
         }
@@ -41,6 +42,7 @@ public class EventMapper {
         dto.setDescription(event.getDescription());
         dto.setLocation(event.getLocation());
         dto.setOrganizer(event.getOrganizer());
+        dto.setMaxNumberOfApplicants(event.getMaxNumberOfApplicants());
         if (event.getEventId() != null) {
             dto.setEventId(event.getEventId().toString());
         }
