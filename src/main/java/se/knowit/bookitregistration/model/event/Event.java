@@ -30,6 +30,7 @@ public class Event {
     private Instant deadlineRVSP;
     private String location;
     private String organizer;
+    private Integer maxNumberOfApplicants;
     @OneToMany
     @JoinColumn(name="id")
     private List<Option> options;

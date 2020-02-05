@@ -12,6 +12,7 @@ import se.knowit.bookitregistration.model.event.Event;
 import se.knowit.bookitregistration.repository.EventRepository;
 import se.knowit.bookitregistration.repository.RegistrationRepository;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
+import se.knowit.bookitregistration.service.exception.MaxNumberOfRegistrationExceededException;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -43,7 +44,7 @@ class RegistrationServiceImplTest {
     }
     
     @Test
-    void allAvailableRegistrationsShouldBeReturnedFromFindAll() throws ConflictingEntityException {
+    void allAvailableRegistrationsShouldBeReturnedFromFindAll() throws ConflictingEntityException, MaxNumberOfRegistrationExceededException {
         Registration registration = validRegistration();
         Event event = event();
         when(registrationRepository.find(any())).thenReturn(Set.of(registration));
@@ -94,7 +95,7 @@ class RegistrationServiceImplTest {
     }
     
     @Test
-    void testSaveADuplicateRegistrationShouldThrowException() throws ConflictingEntityException {
+    void testSaveADuplicateRegistrationShouldThrowException() throws ConflictingEntityException, MaxNumberOfRegistrationExceededException {
         final Event event = event();
         when(eventRepository.findByEventId(any())).thenReturn(Optional.of(event));
 

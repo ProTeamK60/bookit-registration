@@ -1,11 +1,14 @@
 package se.knowit.bookitregistration.service;
 
 import se.knowit.bookitregistration.model.Registration;
+import se.knowit.bookitregistration.model.event.Event;
 import se.knowit.bookitregistration.repository.EventRepository;
 import se.knowit.bookitregistration.repository.RegistrationRepository;
 import se.knowit.bookitregistration.service.exception.ConflictingEntityException;
+import se.knowit.bookitregistration.service.exception.MaxNumberOfRegistrationExceededException;
 import se.knowit.bookitregistration.validator.RegistrationValidator;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -27,11 +30,21 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
     
     @Override
-    public Registration save(Registration incomingRegistration) throws ConflictingEntityException {
+    public Registration save(Registration incomingRegistration) throws ConflictingEntityException, MaxNumberOfRegistrationExceededException {
         Registration validRegistration = registrationValidator.ensureRegistrationIsValidOrThrowException(incomingRegistration);
         eventRepository.findByEventId(validRegistration.getEventId())
                 .orElseThrow(() -> new IllegalArgumentException("The event you try to register for, does not exist in the backend!"));
+        Optional<Event> e = eventRepository.findByEventId(validRegistration.getEventId());
+        Event theEvent = e.get();
+        if (null != theEvent.getMaxNumberOfApplicants()) {
+          int maxNumberApplicants = theEvent.getMaxNumberOfApplicants();
+          Set<Registration> numberOfRegistrations = registrationRepository.find(r -> r.getEventId().equals(validRegistration.getEventId()));
+          if (numberOfRegistrations.size() >= maxNumberApplicants) {
+            throw new MaxNumberOfRegistrationExceededException("Max number of registrations exceeded.");
+          }
+        }
         return registrationRepository.save(validRegistration);
+         
     }
     
     @Override
